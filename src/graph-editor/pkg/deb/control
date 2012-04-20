@@ -3,7 +3,7 @@ Version: 2.5
 Section: base
 Priority: optional
 Architecture: all
-Depends: openjdk-6-jdk, tme-common (>= 2.5-20120403Z), monit, graphviz
+Depends: openjdk-6-jdk, tme-common (>= 2.5-20120420Z), monit, graphviz
 Maintainer: https://github.com/trendmicro/tme
 Description: The routing editor of TME
 
