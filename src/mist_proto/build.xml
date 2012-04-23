@@ -1,7 +1,7 @@
 <project name="MIST-proto" default="default" basedir=".">
 
     <property name="dir.class" location="class"/>
-    <property name="dir.lib" location="../mist/lib"/>
+    <property name="dir.lib" location="../common/lib"/>
     <property name="dir.src" location="src"/>
     <property name="file.jar" value="MIST-proto.jar"/>
 
