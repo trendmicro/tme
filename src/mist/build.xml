@@ -33,7 +33,18 @@
 		<ant antfile="../common/build.xml" target="build" dir="../common/" inheritAll="false"/>
     </target>
 
-    <target name="mist" depends="init">
+    <target name="stamp-version">
+        <echo file="${dir.src}/com/trendmicro/mist/Version.java">
+package com.trendmicro.mist; 
+public class Version { 
+    public static String getVersion() { 
+        return "${VERSION}-${DATE_TAG}"; 
+    } 
+}
+        </echo>
+    </target>
+
+    <target name="mist" depends="init, stamp-version">
         <javac includeantruntime="false" srcdir="${dir.src}" destdir="${dir.class}" debug="true">
             <classpath refid="class.path"/>
         </javac>
