@@ -12,6 +12,7 @@ Prerequisites packages:
 * CMake (cmake)
 * Boost (boost-devel)
 * rpmbuild (rpm-build)
+* xml-commons-apis (xml-commons-apis)
 
 Make sure that the binary executable of ant is included in the search path, and it uses the Sun JDK to build.
 
