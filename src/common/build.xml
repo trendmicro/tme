@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<project basedir="." default="build" name="tme-common">
+<project basedir="." default="build" name="tme-common" xmlns:ivy="antlib:org.apache.ivy.ant">
     <property environment="env"/>
     <property name="debuglevel" value="source,lines,vars"/>
     <property name="target" value="1.6"/>
@@ -20,11 +20,16 @@
         </copy>
     </target>
 
+    <target name="resolve">
+    	<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="tme-common.classpath"/>
+        <ivy:retrieve />
+    </target>
+
     <target name="clean">
         <delete dir="build"/>
     </target>
 
-    <target depends="init" name="build">
+    <target depends="init, resolve" name="build">
         <echo message="${ant.project.name}: ${ant.file}"/>
         <javac debug="true" debuglevel="${debuglevel}" destdir="build/class" source="${source}" target="${target}" includeantruntime="false">
             <src path="src"/>
