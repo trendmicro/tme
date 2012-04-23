@@ -1,4 +1,4 @@
-<project name="TME2.0-MIST" default="mist" basedir=".">
+<project name="TME2.0-MIST" default="mist" basedir="." xmlns:ivy="antlib:org.apache.ivy.ant">
     <property name="dir.class" location="build/class"/>
     <property name="dir.doc" location="build/doc"/>
     <property name="dir.lib" location="lib"/>
@@ -33,6 +33,11 @@
 		<ant antfile="../common/build.xml" target="build" dir="../common/" inheritAll="false"/>
     </target>
 
+    <target name="resolve">
+    	<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="class.path"/>
+        <ivy:retrieve />
+    </target>
+
     <target name="stamp-version">
         <echo file="${dir.src}/com/trendmicro/mist/Version.java">
 package com.trendmicro.mist; 
@@ -44,7 +49,7 @@ public class Version {
         </echo>
     </target>
 
-    <target name="mist" depends="init, stamp-version">
+    <target name="mist" depends="init, stamp-version, resolve">
         <javac includeantruntime="false" srcdir="${dir.src}" destdir="${dir.class}" debug="true">
             <classpath refid="class.path"/>
         </javac>

@@ -1,0 +1,7 @@
+<ivy-module version="2.2">
+    <info organisation="org.apache" module="javatest"/>
+    <dependencies>
+        <dependency org="jline" name="jline" rev="0.9.94"/>
+        <dependency org="org.apache.servicemix.bundles" name="org.apache.servicemix.bundles.jcip-annotations" rev="1.0_1"/>
+    </dependencies>
+</ivy-module>
