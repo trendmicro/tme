@@ -40,8 +40,7 @@ DEBBUILD_DIR   := $(TOP_OUTPUT_DIR)/deb/$(PKGNAME)-$(DATE_TAG)_all
 
 .PHONY: default
 default: 
-	echo "package com.trendmicro.mist; public class Version { public static String getVersion() { return \"${VERSION}-${DATE_TAG}\"; } }" > src/com/trendmicro/mist/Version.java
-	@ant
+	@ant -DVERSION=$(VERSION) -DDATE_TAG=$(DATE_TAG)
 
 .PHONY: install
 install: default

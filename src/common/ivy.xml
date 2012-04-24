@@ -1,0 +1,15 @@
+<ivy-module version="2.2">
+    <info organisation="org.apache" module="javatest"/>
+    <dependencies>
+        <dependency org="commons-cli" name="commons-cli" rev="1.2" conf="*->*,!sources,!javadoc"/>
+        <dependency org="commons-codec" name="commons-codec" rev="1.3" conf="*->*,!sources,!javadoc"/>
+        <dependency org="commons-io" name="commons-io" rev="1.4" conf="*->*,!sources,!javadoc"/>
+        <dependency org="commons-lang" name="commons-lang" rev="2.5" conf="*->*,!sources,!javadoc"/>
+        <dependency org="com.google.code.gson" name="gson" rev="2.0" conf="*->*,!sources,!javadoc"/>
+        <dependency org="log4j" name="log4j" rev="1.2.16" conf="*->*,!sources,!javadoc"/>
+        <dependency org="ch.qos.logback" name="logback-classic" rev="0.9.30" conf="*->*,!sources,!javadoc"/>
+        <dependency org="ch.qos.logback" name="logback-core" rev="0.9.30" conf="*->*,!sources,!javadoc"/>
+        <dependency org="org.apache.zookeeper" name="zookeeper" rev="3.3.5" conf="*->*,!sources,!javadoc"/>
+        <dependency org="com.google.protobuf" name="protobuf-java" rev="2.1.0" conf="*->*,!sources,!javadoc"/>
+    </dependencies>
+</ivy-module>
