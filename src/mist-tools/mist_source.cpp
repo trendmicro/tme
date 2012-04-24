@@ -1,10 +1,3 @@
-/*
- * mist_source.cpp
- *
- *  Created on: Oct 24, 2011
- *      Author: Scott Wang <scott_wang@trend.com.tw>
- */
-
 #include "mist_core.h"
 
 #include<iostream>
@@ -12,7 +5,7 @@
 #include<netinet/tcp.h>
 #include<signal.h>
 #include<unistd.h>
-#include<boost/program_options.hpp>
+#include<getopt.h>
 
 using namespace std;
 using namespace com::trendmicro::mist::proto;
@@ -148,55 +141,108 @@ void handler(int signo){
 	on_close = true;
 }
 
+void usage() {
+        cerr << "Usage: mist-source [session id] OPTIONS" << endl;
+        cerr << "Allowed options:" << endl
+        << "-h [ --help ]	Display help messages" << endl
+        << "-a [ --attach ]	Attach session" << endl
+        << "-d [ --detach ]	Detach session" << endl
+        << "-m [ --mount ] arg	Mount exchange to session" << endl
+        << "-u [ --unmount ] arg	Unmount exchange from session"<< endl
+        << "-l [ --limit ] arg	Retrieve count limit"<< endl
+        << "-A [ --ack ] pid    Manual ACK messages" << endl;
+}
+
+enum process_mode{
+        HELP,
+        ATTACH,
+        DETACH,
+	MOUNT,
+	UNMOUNT,
+};
+
 int main(int argc, char* argv[]) {
 	atexit(cleanup);
 	signal(SIGINT, handler);
 
-	namespace program_opt = boost::program_options;
+        int bflag, ch, fd;
+        static struct option longopts[] = {
+                { "help", no_argument, NULL, 'h'},
+                { "attach", no_argument, NULL, 'a'},
+                { "detach", no_argument, NULL, 'd'},
+                { "limit", required_argument, NULL, 'l'},
+                { "mount", required_argument, NULL, 'm'},
+                { "unmount", required_argument, NULL, 'u'},
+                { "ack", no_argument, NULL, 'A'},
+        };
+        bflag = 0;
 
-	program_opt::options_description opt_desc("Allowed options");
-	opt_desc.add_options()("help", "Display help messages")("attach,a", "Attach session")("session-id,s", "Session ID")
-			("ack,A", "Manual ACK messages")("mount,m", program_opt::value<string>(),"Mount exchange")
-			("unmount,u", program_opt::value<string>(), "Unmount exchange")("detach,d", "Detach session")
-			("limit,l", program_opt::value<long>(), "Retrieve count limit");
+        if(argc < 3){
+                usage();
+                return MIST_ARGUMENT_ERROR;
+        }
+        string session_id = string(argv[1]);
+        enum process_mode mode = HELP;
+        bool acking = false;
+	int limit = -1;
+	string exchange_name = "";
 
-	program_opt::positional_options_description pos_opt_desc;
-	pos_opt_desc.add("session-id", -1);
+        while((ch = getopt_long(argc, argv, "hadl:m:u:A", longopts, NULL)) != -1){
+                switch(ch){
+                case 'h':
+                        usage();
+                        break;
+                case 'a':
+                        mode = ATTACH;
+                        break;
+                case 'd':
+                        mode = DETACH;
+                        break;
+                case 'l':
+                        limit = strtol(optarg, NULL, 10);
+                        break;
+                case 'm':
+			mode = MOUNT;
+                        exchange_name = string(optarg);
+                        break;
+                case 'u':
+			mode = UNMOUNT;
+                        exchange_name = string(optarg);
+                        break;
+                case 'A':
+                        acking = true;
+                        break;
+                case '?':
+                default:
+                        usage();
+                }
+        }
 
-	program_opt::variables_map var_map;
-	program_opt::store(program_opt::command_line_parser(argc, argv).options(opt_desc).positional(pos_opt_desc).run(), var_map);
-	program_opt::notify(var_map);
-
-	if(var_map.count("help")){
-		cerr << opt_desc << endl;
-		return 0;
-	}
-
-	if(!var_map.count("session-id")){
-		cerr << opt_desc << endl;
-		return MIST_ARGUMENT_ERROR;
-	}
-	session_id = var_map["session-id"].as<string>();
-
-	if (var_map.count("attach")) {
-		if(!attach(var_map["session-id"].as<string>(), var_map.count("ack")>0, var_map.count("limit")>0 ? var_map["limit"].as<long>() : -1)){
-			return MIST_SOURCE_ATTACH_ERROR;
-		}
-	}
-	else if (var_map.count("mount")) {
-		if(!mount(var_map["session-id"].as<string>(), var_map["mount"].as<string>())){
+        switch(mode){
+        case ATTACH:
+                if(!attach(session_id, acking, limit > 0 ? limit : -1)){
+                        return MIST_SOURCE_ATTACH_ERROR;
+                }
+                break;
+        case DETACH:
+                if(!detach(session_id)){
+                        return MIST_SOURCE_DETACH_ERROR;
+                }
+                break;
+        case MOUNT:
+		if(!mount(session_id, exchange_name)){
 			return MIST_SOURCE_MOUNT_ERROR;
 		}
-	}
-	else if (var_map.count("unmount")) {
-		if(!unmount(var_map["session-id"].as<string>(), var_map["unmount"].as<string>())){
+                break;
+        case UNMOUNT:
+		if(!unmount(session_id, exchange_name)){
 			return MIST_SOURCE_UNMOUNT_ERROR;
 		}
-	}
-	else if (var_map.count("detach")) {
-		if(!detach(var_map["session-id"].as<string>())){
-			return MIST_SOURCE_DETACH_ERROR;
-		}
-	}
+                break;
+        case HELP:
+        default:
+                usage();
+                return MIST_ARGUMENT_ERROR;
+        }
 	return 0;
 }

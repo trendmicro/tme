@@ -1,11 +1,9 @@
-find_package(Boost COMPONENTS program_options REQUIRED)
 find_package(Protobuf REQUIRED)
 
 SET(CMAKE_INSTALL_RPATH "/opt/trend/tme/lib")
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
 
 include_directories(
-  ${Boost_INCLUDE_DIRS}
   ${PROTOBUF_INCLUDE_DIR}
   ${GENERATED_MIST_PROTOS_DIR}
   ${TME_SOURCE_DIR})
@@ -20,16 +18,16 @@ add_executable(mist-session mist_session.cpp)
 
 target_link_libraries(
   mist-encode
-  mist_proto boost_program_options pthread ${PROTOBUF_LIBRARY})
+  mist_proto pthread ${PROTOBUF_LIBRARY})
 target_link_libraries(
   mist-decode
-  mist_proto boost_program_options pthread ${PROTOBUF_LIBRARY})
+  mist_proto pthread ${PROTOBUF_LIBRARY})
 target_link_libraries(
   mist-source
-  mist_proto boost_program_options pthread ${PROTOBUF_LIBRARY})
+  mist_proto pthread ${PROTOBUF_LIBRARY})
 target_link_libraries(
   mist-sink
-  mist_proto boost_program_options pthread ${PROTOBUF_LIBRARY})
+  mist_proto pthread ${PROTOBUF_LIBRARY})
 target_link_libraries(
   mist-session
-  mist_proto boost_program_options pthread ${PROTOBUF_LIBRARY})
+  mist_proto pthread ${PROTOBUF_LIBRARY})
