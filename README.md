@@ -41,3 +41,14 @@ You have to follow this step to use RVM to install Ruby 1.9.2:
 4. `rvm install 1.9.2 ; rvm default 1.9.2`
 5. `gem install bundler`
 
+#### Mac OS X (Lion)
+
+(draft)
+
+To prepare the build environment:
+
+1. Install [Command Line Tools for Xcode] from [Downloads for Apple Developers](https://developer.apple.com/downloads/) (free Apple ID required). See [Xcode, GCC, and Homebrew ](http://kennethreitz.com/xcode-gcc-and-homebrew.html).
+2. Install [Homebrew](http://mxcl.github.com/homebrew/): `/usr/bin/ruby -e "$(/usr/bin/curl -fksSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"`
+3. Install [brew-gem](https://github.com/josh/brew-gem): `brew install brew-gem`
+4. Install [Bundler](http://gembundler.com/): `brew gem bundle`
+
