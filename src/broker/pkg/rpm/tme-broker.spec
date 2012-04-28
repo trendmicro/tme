@@ -1,4 +1,5 @@
 
+%ifnos darwin
 %define __os_install_post \
     /usr/lib/rpm/brp-compress \
     %{!?__debug_package:/usr/lib/rpm/brp-strip %{__strip}} \
@@ -6,6 +7,7 @@
     /usr/lib/rpm/brp-strip-comment-note %{__strip} %{__objdump} \
     /usr/lib/rpm/brp-python-bytecompile \
 %{nil}
+%endif
 
 %define name tme-broker
 
