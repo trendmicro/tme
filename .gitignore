@@ -37,4 +37,6 @@ src/mist/lib/org.apache.servicemix.bundles.jcip-annotations-1.0_1.jar
 src/mist/src/com/trendmicro/mist/Version.java
 
 src/portal-collector/build/
+src/portal-web/src/.bundle/
+src/portal-web/src/lib/ruby/
 

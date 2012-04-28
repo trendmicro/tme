@@ -47,28 +47,16 @@ You have to follow this step to use RVM to install Ruby 1.9.2:
 
 To prepare the build environment:
 
-1. Install [Command Line Tools for Xcode] from [Downloads for Apple Developers](https://developer.apple.com/downloads/) (free Apple ID required). See [Xcode, GCC, and Homebrew ](http://kennethreitz.com/xcode-gcc-and-homebrew.html).
-2. Install [Homebrew](http://mxcl.github.com/homebrew/): `/usr/bin/ruby -e "$(/usr/bin/curl -fksSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"`
-3. Install [brew-gem](https://github.com/josh/brew-gem): `brew install brew-gem`
-4. Install [Bundler](http://gembundler.com/): `brew gem bundle`
-
-#### Mac OS X (Lion)
-
-(draft)
-
-To prepare the build environment:
-
 Step 1: Install [Command Line Tools for Xcode](https://developer.apple.com/library/ios/#documentation/DeveloperTools/Conceptual/WhatsNewXcode/Articles/xcode_4_3.html#//apple_ref/doc/uid/1006-SW2) from [Downloads for Apple Developers](https://developer.apple.com/downloads/) (free Apple ID required). See [Xcode, GCC, and Homebrew ](http://kennethreitz.com/xcode-gcc-and-homebrew.html).
 
-Step 2: Install [Homebrew](http://mxcl.github.com/homebrew/):
+Step 2: Install [RVM](https://rvmio/):
 
-	/usr/bin/ruby -e "$(/usr/bin/curl -fksSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
+	curl https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer | bash -s stable
 
-Step 3: Install [brew-gem](https://github.com/josh/brew-gem):
+Step 3: Install ruby-1.9.3-p125 in RVM. Note that for XCode 4.3+, according to `rvm requirements`, only ruby-1.9.3-p125+ is partially supported.
 
-	brew install brew-gem
+	rvm install ruby-1.9.3-p125
+	rvm default 1.9.3p125
 
-Step 4: Install [Bundler](http://gembundler.com/)
-
-	brew gem bundle
+Note that once RVM is installed, your `~/.bash_login` is modified and will initiate RVM environment by default. This means, your default ruby becomes 1.9.3p125.
 
