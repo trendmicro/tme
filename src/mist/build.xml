@@ -35,7 +35,7 @@
 
     <target name="resolve">
     	<taskdef resource="org/apache/ivy/ant/antlib.xml" uri="antlib:org.apache.ivy.ant" classpathref="class.path"/>
-        <ivy:retrieve />
+        <ivy:retrieve log="quiet" />
     </target>
 
     <target name="stamp-version">
