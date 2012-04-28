@@ -48,6 +48,7 @@ help:
 	@echo "";
 	@echo "  help   - show this help message";
 	@echo "  rpm    - build RPM packages";
+	@echo "  build  - build all modules";
 	@echo "  clean  - remove all file built/generated";
 	@echo "  test   - run tests with coverage collecting";
 	@echo "";
@@ -70,5 +71,11 @@ deb:
 clean:
 	@for d in $(SUB_MODULE_DIRS); do \
 		$(MAKE) --print-directory --directory=$$d clean; \
+	done;
+
+.PHONY: build
+build:
+	@for d in $(SUB_MODULE_DIRS); do \
+		$(MAKE) --print-directory --directory=$$d default; \
 	done;
 
