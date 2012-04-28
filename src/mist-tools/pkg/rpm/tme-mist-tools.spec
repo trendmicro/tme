@@ -48,7 +48,11 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/mist-source
 /usr/bin/mist-decode
 /usr/bin/mist-encode
+%ifos darwin
+/opt/trend/tme/lib/libprotobuf.4.dylib
+%else
 /opt/trend/tme/lib/libprotobuf.so.4
+%endif
 
 %pre
 
