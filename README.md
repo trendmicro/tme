@@ -52,3 +52,23 @@ To prepare the build environment:
 3. Install [brew-gem](https://github.com/josh/brew-gem): `brew install brew-gem`
 4. Install [Bundler](http://gembundler.com/): `brew gem bundle`
 
+#### Mac OS X (Lion)
+
+(draft)
+
+To prepare the build environment:
+
+Step 1: Install [Command Line Tools for Xcode](https://developer.apple.com/library/ios/#documentation/DeveloperTools/Conceptual/WhatsNewXcode/Articles/xcode_4_3.html#//apple_ref/doc/uid/1006-SW2) from [Downloads for Apple Developers](https://developer.apple.com/downloads/) (free Apple ID required). See [Xcode, GCC, and Homebrew ](http://kennethreitz.com/xcode-gcc-and-homebrew.html).
+
+Step 2: Install [Homebrew](http://mxcl.github.com/homebrew/):
+
+	/usr/bin/ruby -e "$(/usr/bin/curl -fksSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
+
+Step 3: Install [brew-gem](https://github.com/josh/brew-gem):
+
+	brew install brew-gem
+
+Step 4: Install [Bundler](http://gembundler.com/)
+
+	brew gem bundle
+
