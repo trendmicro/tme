@@ -20,6 +20,10 @@ Group: System Environment/Daemons
 Source: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{verion}-root
 Requires: boost
+%ifos darwin
+# Avoid running `bash --rpm-requires`, which is not supported by bash in Mac.
+AutoReqProv: no
+%endif
 
 %description
 
