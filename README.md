@@ -60,3 +60,13 @@ Step 3: Install ruby-1.9.3-p125 in RVM. Note that for XCode 4.3+, according to `
 
 Note that once RVM is installed, your `~/.bash_login` is modified and will initiate RVM environment by default. This means, your default ruby becomes 1.9.3p125.
 
+There is no need to install bundler, since it is included in RVM.
+
+Step 4: Install [Homebrew](http://mxcl.github.com/homebrew/):
+
+	/usr/bin/ruby -e "$(/usr/bin/curl -fksSL https://raw.github.com/mxcl/homebrew/master/Library/Contributions/install_homebrew.rb)"
+
+Step 5: Install [CMake](http://www.cmake.org/) using Homebrew:
+
+	brew install cmake
+
