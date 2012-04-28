@@ -22,6 +22,10 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-root
 Requires: jdk, tme-common >= 2.5-20120420Z, rrdtool, monit
 Requires(post): /sbin/chkconfig, /sbin/service
 Requires(preun): /sbin/chkconfig, /sbin/service
+%ifos darwin
+# Avoid running `bash --rpm-requires`, which is not supported by bash in Mac.
+AutoReqProv: no
+%endif
 
 %description
 
