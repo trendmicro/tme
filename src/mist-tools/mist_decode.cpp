@@ -1,40 +1,63 @@
-/*
- * mist_decode.cpp
- *
- *  Created on: Oct 24, 2011
- *      Author: Scott Wang <scott_wang@trend.com.tw>
- */
-
 #include "mist_core.h"
 
 #include<iostream>
-
 #include<arpa/inet.h>
-#include<boost/program_options.hpp>
+#include<getopt.h>
 
 using namespace std;
 
+enum process_mode{
+	HELP,
+	LINE,
+	STREAM,
+};
+
+void usage() {
+	cerr << "Allowed options:" << endl
+	<< "-h [ --help ]	Display help messages" << endl
+	<< "-l [ --line ]	Decode message stream into lines" << endl
+	<< "-s [ --stream ]	Decode message stream into [length][payload] format," << endl
+	<< "		length is 4 byte big endian integer" << endl;
+}
+
 int main(int argc, char* argv[]) {
-	namespace program_opt = boost::program_options;
+	int bflag, ch, fd;
+	static struct option longopts[] = {
+		{ "help", no_argument, NULL, 'h'},
+		{ "line", no_argument, NULL, 'l'},
+		{ "stream", no_argument, NULL, 's'},
+	};
+	bflag = 0;
 
-	program_opt::options_description opt_desc("Allowed options");
-	opt_desc.add_options()("help", "Display help messages")("line,l",
-			"Decode message stream into line text file")("stream,s",
-			"Decode message stream into [length][payload] format, length is 4 byte big endian integer");
+	enum process_mode mode = HELP;
 
-	program_opt::variables_map var_map;
-	program_opt::store(program_opt::parse_command_line(argc, argv, opt_desc),
-			var_map);
-	program_opt::notify(var_map);
+	while((ch = getopt_long(argc, argv, "hls", longopts, NULL)) != -1){
+		switch(ch){
+		case 'h':
+			usage();
+			break;
+		case 'l':
+			mode = LINE;
+			break;
+		case 's':
+			mode = STREAM;
+			break;
+		case '?':
+		default:
+			usage();
+		}
+	}
 
-	if (var_map.count("line")) {
+	if(mode == LINE){
 		Processor<Block_Policy_MessageBlock, Block_Policy_Line, Read_Stdin_Policy, Write_Stdout_Policy> processor;
-	    processor.run();
-	} else if (var_map.count("stream")){
+		processor.run();
+	}
+	else if(mode == STREAM){
 		Processor<Block_Policy_MessageBlock, Block_Policy_Length, Read_Stdin_Policy, Write_Stdout_Policy> processor;
-	    processor.run();
-	} else {
-		cerr << opt_desc << endl;
+		processor.run();
+	}
+	else{
+		usage();
 		return 1;
 	}
 	return 0;

@@ -1,19 +1,20 @@
-/*
- * mist_session.cpp
- *
- *  Created on: Oct 24, 2011
- *      Author: Scott Wang <scott_wang@trend.com.tw>
- */
-
-
 #include "mist_core.h"
 
 #include<iostream>
 #include<fstream>
-#include<boost/program_options.hpp>
+#include<getopt.h>
 
 using namespace com::trendmicro::mist::proto;
 using namespace std;
+
+void usage() {
+        cerr << "Allowed options:" << endl
+        << "-h [ --help ]	Display help messages" << endl
+        << "-d [ --destroy ] id	Destroy session" << endl
+        << "-l [ --list ]	List all sessions" << endl
+        << "-s [ --status ]	Show MIST daemon status" << endl;
+}
+
 
 int create_session() {
 	int session_id = -1;
@@ -94,43 +95,51 @@ bool show_status() {
 }
 
 int main(int argc, char* argv[]) {
-	namespace program_opt = boost::program_options;
+        int bflag, ch, fd;
+        static struct option longopts[] = {
+                { "help", no_argument, NULL, 'h'},
+                { "destroy", required_argument, NULL, 'd'},
+                { "list", no_argument, NULL, 'l'},
+                { "status", no_argument, NULL, 's'},
+        };
+        bflag = 0;
 
-	program_opt::options_description opt_desc("Allowed options");
-	opt_desc.add_options()("help", "Display help messages")("destroy,d", program_opt::value<string>(),"Destroy session")
-	("list,l", "List all sessions")("status,s", "Show MIST daemon status");
-
-	program_opt::variables_map var_map;
-	program_opt::store(program_opt::parse_command_line(argc, argv, opt_desc),
-			var_map);
-	program_opt::notify(var_map);
-
-	if( var_map.count("help")){
-		cerr << opt_desc << endl;
-	}
-	else if(var_map.count("destroy")){
-		if(!destroy_session(var_map["destroy"].as<string>())){
-			return MIST_SESSION_DESTROY_ERROR;
-		}
-	}
-	else if(var_map.count("list")){
-		if(!list_session()){
-			return MIST_SESSION_LIST_ERROR;
-		}
-	}
-	else if(var_map.count("status")){
-		if(!show_status()){
-			return MIST_SESSION_STATUS_ERROR;
-		}
-	}
-	else{
+	if(argc == 1){
 		int sess_id = create_session();
 		if(sess_id != -1){
-			cout<<sess_id<<endl;
+			cout << sess_id << endl;
+			return 0;
 		}
 		else{
 			return MIST_SESSION_CREATE_ERROR;
 		}
 	}
+
+	while((ch = getopt_long(argc, argv, "hd:ls", longopts, NULL)) != -1){
+                switch(ch){
+                case 'h':
+                        usage();
+                        break;
+                case 'd':
+			if(!destroy_session(optarg)){
+				return MIST_SESSION_DESTROY_ERROR;
+			}
+			break;
+                case 'l':
+			if(!list_session()){
+				return MIST_SESSION_LIST_ERROR;
+			}
+			break;
+                case 's':
+			if(!show_status()){
+				return MIST_SESSION_STATUS_ERROR;
+			}
+			break;
+		case '?':
+                default:
+			usage();
+			break;
+                }
+        }
 	return 0;
 }

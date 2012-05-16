@@ -234,7 +234,11 @@ FUNCTION(PROTOBUF_GENERATE_CPP SRCS HDRS)
     
 ENDFUNCTION()
 
-SET(PROTOBUF_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/../../output/works/protobuf-2.1.0/src/.libs/libprotobuf.so.4")
+IF(APPLE)
+    SET(PROTOBUF_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/../../output/works/protobuf-2.1.0/src/.libs/libprotobuf.4.dylib")
+ELSE()
+    SET(PROTOBUF_LIBRARY "${CMAKE_CURRENT_SOURCE_DIR}/../../output/works/protobuf-2.1.0/src/.libs/libprotobuf.so.4")
+ENDIF()
 SET(PROTOBUF_INCLUDE_DIR "${CMAKE_CURRENT_SOURCE_DIR}/../../output/works/protobuf-2.1.0/src")
 SET(PROTOBUF_PROTOC_EXECUTABLE "${CMAKE_CURRENT_SOURCE_DIR}/../../output/works/protobuf-2.1.0/src/protoc")
 SET(PROTOBUF_FOUND 1)

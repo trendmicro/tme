@@ -12,7 +12,7 @@
 #include<sys/file.h>
 #include<signal.h>
 #include<unistd.h>
-#include<boost/program_options.hpp>
+#include<getopt.h>
 
 using namespace std;
 using namespace com::trendmicro::mist::proto;
@@ -138,46 +138,80 @@ bool detach(const string& session_id) {
 	return false;
 }
 
+void usage() {
+        cerr << "Usage: mist-sink [session id] OPTIONS" << endl;
+        cerr << "Allowed options:" << endl
+        << "-h [ --help ]	Display help messages" << endl
+        << "-a [ --attach ]	Attach session" << endl
+        << "-d [ --detach ]	Detach session" << endl
+        << "-c [ --count ]	Output delivered message count" << endl
+        << "-A [ --ack ] pid	Manual ACK messages" << endl;
+}
+
+enum process_mode{
+        HELP,
+	ATTACH,
+	DETACH,
+};
+
 int main(int argc, char* argv[]) {
-	namespace program_opt = boost::program_options;
-
-	program_opt::options_description opt_desc("Allowed options");
-
-
-	opt_desc.add_options()("help", "Display help messages")("attach,a",
-			"Attach session")("session-id,s", "Session ID")("ack,A", program_opt::value<string>(&ack_session_id),
-			"Manual ACK messages")("detach,d", "Detach session")
-			("count,c", "Output delivered message count");
-
-	program_opt::positional_options_description pos_opt_desc;
-	pos_opt_desc.add("session-id", -1);
-
-	program_opt::variables_map var_map;
-	program_opt::store(
-			program_opt::command_line_parser(argc, argv).options(opt_desc).positional(
-					pos_opt_desc).run(), var_map);
-	program_opt::notify(var_map);
-
-	if(var_map.count("help")){
-		cerr << opt_desc << endl;
-		return 0;
-	}
-
-	if (!var_map.count("session-id")) {
-		cerr << opt_desc << endl;
+        int bflag, ch, fd;
+        static struct option longopts[] = {
+                { "help", no_argument, NULL, 'h'},
+                { "attach", no_argument, NULL, 'a'},
+                { "detach", no_argument, NULL, 'd'},
+                { "count", no_argument, NULL, 'c'},
+                { "ack", no_argument, NULL, 'A'},
+        };
+        bflag = 0;
+	
+	if(argc < 3){
+		usage();
 		return MIST_ARGUMENT_ERROR;
 	}
-	string session_id = var_map["session-id"].as<string> ();
+	string session_id = string(argv[1]);
+	enum process_mode mode = HELP;
+	bool counting = false;
+	bool acking = false;
 
-	if (var_map.count("attach")) {
-		if(!attach(session_id, var_map.count("ack") > 0, var_map.count("count") > 0)){
+        while((ch = getopt_long(argc, argv, "hadcA", longopts, NULL)) != -1){
+                switch(ch){                
+		case 'h':
+                        usage();
+                        break;
+                case 'a':
+			mode = ATTACH;
+                        break;
+                case 'd': 
+			mode = DETACH;
+                        break;
+                case 'c':
+			counting = true;
+                        break;
+                case 'A':
+			acking = true;
+                        break;
+                case '?':
+                default:
+                        usage();
+                }
+        }
+
+	switch(mode){
+	case ATTACH:
+		if(!attach(session_id, acking, counting)){
 			return MIST_SINK_ATTACH_ERROR;
 		}
-	} 
-	else if (var_map.count("detach")) {
+		break;
+	case DETACH:
 		if(!detach(session_id)){
 			return MIST_SINK_DETACH_ERROR;
 		}
-	} 
+		break;
+	case HELP:
+	default:
+		usage();
+		return MIST_ARGUMENT_ERROR;
+	}
 	return 0;
 }

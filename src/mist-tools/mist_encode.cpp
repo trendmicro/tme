@@ -1,64 +1,92 @@
-/*
- * mist_encode.cpp
- *
- *  Created on: Oct 24, 2011
- *      Author: Scott Wang <scott_wang@trend.com.tw>
- */
-
 #include "mist_core.h"
 
 #include<string>
 #include<iostream>
-
 #include<arpa/inet.h>
-#include<boost/program_options.hpp>
+#include<getopt.h>
 
 using namespace std;
 
+enum process_mode{
+        HELP,
+        LINE,
+        STREAM,
+};
+
+void usage() {
+        cerr << "Allowed options:" << endl
+        << "-h [ --help ]       Display help messages" << endl
+        << "-l [ --line ]       Encode each line as a message" << endl
+        << "-s [ --stream ]     Encode message stream from [length][payload] format," << endl
+        << "			length is 4 byte big endian integer" << endl
+	<< "-w [ --wrap ] arg	Set the message's destination ID" << endl
+	<< "-t [ --ttl ] arg	Set the message's ttl (seconds)" << endl;
+
+}
+
 int main(int argc, char* argv[]) {
-	namespace program_opt = boost::program_options;
+        int bflag, ch, fd;
+        static struct option longopts[] = {
+                { "help", no_argument, NULL, 'h'},
+                { "wrap", required_argument, NULL, 'w'},
+                { "ttl", optional_argument, NULL, 't'},
+                { "line", no_argument, NULL, 'l'},
+                { "stream", no_argument, NULL, 's'},
+        };
+        bflag = 0;
 
-	program_opt::options_description opt_desc("Allowed options");
-	opt_desc.add_options()("help", "Display help messages")("line,l",
-			"Encode each text line as a message")("stream,s",
-			"Process message in [length][payload] format, length is 4 byte big endian integer")(
-			"wrap,w",
-			program_opt::value<string>(),
-			"wrap as message block of MESSAGEID\nMESSAGEID={queue|topic}:EXCHANGENAME\nif exchange type prefix is not given, default to queue")
-			("ttl,t", program_opt::value<int>(), "set message TTL, in seconds");
+        enum process_mode mode = HELP;
+	string exchange_name = "";
+	int ttl = -1;
 
-	program_opt::variables_map var_map;
-	program_opt::store(program_opt::parse_command_line(argc, argv, opt_desc),
-			var_map);
-	program_opt::notify(var_map);
+        while((ch = getopt_long(argc, argv, "hw:t:ls", longopts, NULL)) != -1){
+                switch(ch){
+                case 'h':
+                        usage();
+                        break;
+		case 'w':
+			exchange_name = string(optarg);
+			break;
+                case 'l':
+                        mode = LINE;
+                        break;
+                case 's':
+                        mode = STREAM;
+                        break;
+		case 't':
+			ttl = strtol(optarg, NULL, 10);
+			break;
+		case '?':
+                default:
+                        usage();
+                }
+        }
 
-	string message_id;
-	if (!var_map.count("wrap")) {
-		cout << "No MESSAGEID is set! Please use --wrap to set MESSAGEID"
-				<< endl;
-		cout << opt_desc << endl;
+	if(exchange_name.empty()){
+		cerr << "No destination ID is set! The wrap option is required" << endl;
+		usage();
 		return 1;
 	}
-	message_id = var_map["wrap"].as<string> ();
 
-	if (var_map.count("line")) {
+        if(mode == LINE){
 		Processor<Block_Policy_Line, Block_Policy_MessageBlock, Read_Stdin_Policy, Write_Stdout_Policy> processor;
-		processor.set_id(message_id);
-		if(var_map.count("ttl")){
-		    processor.set_ttl(var_map["ttl"].as<int>());
+		processor.set_id(exchange_name);
+		if(ttl > 0){
+			processor.set_ttl(ttl);
 		}
-		processor.run();
-	}
-	else if (var_map.count("stream")) {
+                processor.run();
+        }
+        else if(mode == STREAM){
 		Processor<Block_Policy_Length, Block_Policy_MessageBlock, Read_Stdin_Policy, Write_Stdout_Policy> processor;
-		processor.set_id(message_id);
-		if(var_map.count("ttl")){
-		    processor.set_ttl(var_map["ttl"].as<int>());
+		processor.set_id(exchange_name);
+		if(ttl > 0){
+			processor.set_ttl(ttl);
 		}
-		processor.run();
-	} else {
-		cout << opt_desc << endl;
-		return 1;
-	}
-	return 0;
+                processor.run();
+        }
+        else{
+                usage();
+                return 1;
+        }
+        return 0;
 }
