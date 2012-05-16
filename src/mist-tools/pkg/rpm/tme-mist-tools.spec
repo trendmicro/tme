@@ -17,7 +17,6 @@ License: Trend Micro Inc.
 Group: System Environment/Daemons
 Source: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{verion}-root
-Requires: boost
 
 %description
 
