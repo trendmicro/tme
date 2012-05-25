@@ -3,7 +3,7 @@ Version: 2.5
 Section: base
 Priority: optional
 Architecture: any
-Depends: libboost-program-options1.40.0
+Depends: 
 Maintainer: https://github.com/trendmicro/tme
 Description: The tools to send / receive messages
 
