@@ -30,6 +30,7 @@ To prepare the build environment:
 4. `apt-get install g++`
 5. `apt-get install cmake`
 6. `apt-get install libboost-program-options1.40-dev`
+7. `apt-get install rpm`
 
 TME web portal only supports Ruby 1.9.2+, and Ubuntu 10.04 only ships Ruby 1.9.1
 
