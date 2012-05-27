@@ -33,7 +33,17 @@ SRCDIR      = src
 
 DATE_TAG    =	$(shell date -u "+%Y%m%dZ")
 
-DEBBUILD_DIR   := $(TOP_OUTPUT_DIR)/deb/$(PKGNAME)-$(DATE_TAG)_all
+export ARCH=$(shell uname -m)
+ifeq ($(ARCH), x86_64)
+        DEB_ARCH = amd64
+endif
+ifeq ($(ARCH), i686)
+        DEB_ARCH = i386
+else
+        DEB_ARCH = $(ARCH)
+endif
+
+DEBBUILD_DIR   := $(TOP_OUTPUT_DIR)/deb/$(PKGNAME)-$(DATE_TAG)_$(DEB_ARCH)
 
 # ----------------------------------------------------------------------------
 # Main targets
@@ -66,6 +76,7 @@ deb:
 	mkdir -p $(DEBBUILD_DIR)/DEBIAN
 	cd $(DEBBUILD_DIR) ; find . -type f | sed -e '/DEBIAN\/md5sums/d' | xargs md5sum | sed -e 's/\.\///g' > $(DEBBUILD_DIR)/DEBIAN/md5sums
 	sed -e "s/Version:.*/Version: $(VERSION)-$(DATE_TAG)/g" pkg/deb/control > $(DEBBUILD_DIR)/DEBIAN/control
+	sed -i -e "s/Architecture:.*/Architecture: $(DEB_ARCH)/g" $(DEBBUILD_DIR)/DEBIAN/control
 	cp -f pkg/deb/postinst $(DEBBUILD_DIR)/DEBIAN/
 	cp -f pkg/deb/prerm $(DEBBUILD_DIR)/DEBIAN/
 	dpkg-deb --build $(DEBBUILD_DIR)
@@ -88,7 +99,7 @@ rpm: default
 	mv $(BUILDPATH)/$(PKGNAME).tar.gz $(RPMBUILD_DIR)/SOURCES
 	rm -rf $(RPMPATH)
 	# Create SPEC file with changelog, and build RPM files.
-	rpmbuild --target noarch --define "version $(VERSION)" --define "release $(DATE_TAG)" --define="_topdir $(RPMBUILD_DIR)" -bb pkg/rpm/tme-portal-web.spec
+	rpmbuild --target $(ARCH) --define "version $(VERSION)" --define "release $(DATE_TAG)" --define="_topdir $(RPMBUILD_DIR)" -bb pkg/rpm/tme-portal-web.spec
 	# Copy RPM files to artifacts directory
 	mkdir -p $(ARTIFACTS_DIR);
 	cp -f $(RPMBUILD_DIR)/RPMS/*/$(NAME)-*.rpm $(ARTIFACTS_DIR)/;
