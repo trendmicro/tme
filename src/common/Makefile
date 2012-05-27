@@ -27,6 +27,7 @@ WEBPATH		= web
 RPMPATH     = $(BUILDPATH)/$(PKGNAME)
 INSTALLPATH	= /opt/trend/tme
 BUILD_PREFIX	?= 
+SHELL       = /bin/bash
 
 SRCDIR      = src
 
