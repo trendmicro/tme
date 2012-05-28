@@ -6,6 +6,7 @@
     /usr/lib/rpm/brp-strip-comment-note %{__strip} %{__objdump} \
     /usr/lib/rpm/brp-python-bytecompile \
 %{nil}
+%define debug_package %{nil}
 
 %define name tme-portal-web
 
