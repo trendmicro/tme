@@ -37,8 +37,8 @@ TME web portal only supports Ruby 1.9.2+, and Ubuntu 10.04 only ships Ruby 1.9.1
 You have to follow this step to use RVM to install Ruby 1.9.2:
 
 1. `aptitude install build-essential libssl-dev libreadline5 libreadline5-dev zlib1g zlib1g-dev curl`
-2. `curl https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer | bash -s stable`
-3. `source /etc/profile.d/rvm.sh`
+2. `curl -L get.rvm.io | bash -s stable`
+3. `source ~/.rvm/scripts/rvm`
 4. `rvm install 1.9.2 ; rvm default 1.9.2`
 5. `gem install bundler`
 
