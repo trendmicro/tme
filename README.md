@@ -10,7 +10,6 @@ Prerequisites packages:
 * Apache Ant (1.8.2+)
 * GNU g++ (gcc-c++)
 * CMake (cmake)
-* Boost (boost-devel)
 * rpmbuild (rpm-build)
 * xml-commons-apis (xml-commons-apis)
 
@@ -29,8 +28,7 @@ To prepare the build environment:
 3. `apt-get install ant1.8`
 4. `apt-get install g++`
 5. `apt-get install cmake`
-6. `apt-get install libboost-program-options1.40-dev`
-7. `apt-get install rpm`
+6. `apt-get install rpm`
 
 TME web portal only supports Ruby 1.9.2+, and Ubuntu 10.04 only ships Ruby 1.9.1
 
