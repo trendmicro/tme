@@ -10,7 +10,6 @@ Prerequisites packages:
 * Apache Ant (1.8.2+)
 * GNU g++ (gcc-c++)
 * CMake (cmake)
-* Boost (boost-devel)
 * rpmbuild (rpm-build)
 * xml-commons-apis (xml-commons-apis)
 
@@ -29,15 +28,15 @@ To prepare the build environment:
 3. `apt-get install ant1.8`
 4. `apt-get install g++`
 5. `apt-get install cmake`
-6. `apt-get install libboost-program-options1.40-dev`
+6. `apt-get install rpm`
 
 TME web portal only supports Ruby 1.9.2+, and Ubuntu 10.04 only ships Ruby 1.9.1
 
 You have to follow this step to use RVM to install Ruby 1.9.2:
 
 1. `aptitude install build-essential libssl-dev libreadline5 libreadline5-dev zlib1g zlib1g-dev curl`
-2. `curl https://raw.github.com/wayneeseguin/rvm/master/binscripts/rvm-installer | bash -s stable`
-3. `source /etc/profile.d/rvm.sh`
+2. `curl -L get.rvm.io | bash -s stable`
+3. `source ~/.rvm/scripts/rvm`
 4. `rvm install 1.9.2 ; rvm default 1.9.2`
 5. `gem install bundler`
 

@@ -8,6 +8,7 @@
     /usr/lib/rpm/brp-python-bytecompile \
 %{nil}
 %endif
+%define debug_package %{nil}
 
 %define name tme-portal-web
 
