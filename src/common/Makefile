@@ -25,7 +25,7 @@ LIBPATH     = lib
 CONFPATH    = conf
 WEBPATH		= web
 RPMPATH     = $(BUILDPATH)/$(PKGNAME)
-INSTALLPATH	= /opt/trend/tme
+INSTALLPATH	?= /opt/trend/tme
 BUILD_PREFIX	?= 
 SHELL       = /bin/bash
 
@@ -49,10 +49,10 @@ install: default
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)/common
-	cp -f $(BINPATH)/daemon.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
-	cp -f $(BINPATH)/create_zookeeper_nodes.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
-	cp -f $(CONFPATH)/common/common-env.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)/common
-	cp -rf $(LIBPATH)/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f bin/daemon.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
+	cp -f bin/create_zookeeper_nodes.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
+	cp -f conf/common/common-env.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)/common
+	cp -rf lib/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
 	cp -f $(BUILDPATH)/*.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
 
 .PHONY: deb
