@@ -50,7 +50,7 @@ help:
 	@echo "  rpm    - build RPM packages";
 	@echo "  build  - build all modules";
 	@echo "  clean  - remove all file built/generated";
-	@echo "  test   - run tests with coverage collecting";
+#	@echo "  test   - run tests with coverage collecting";
 	@echo "";
 	@echo "Default TARGET is 'help'.";
 	@echo "";
