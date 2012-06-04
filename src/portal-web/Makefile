@@ -19,17 +19,15 @@ NAME        = tme-portal-web
 VERSION     = 2.5
 PKGNAME     = ${NAME}-${VERSION}
 
-BINPATH     = bin
-BUILDPATH   = build
-LIBPATH     = lib
-CONFPATH    = conf
-WEBPATH		= web
+BINPATH     ?= bin
+BUILDPATH   ?= build
+LIBPATH     ?= lib
+CONFPATH    ?= conf
+WEBPATH		?= web
 RPMPATH     = $(BUILDPATH)/$(PKGNAME)
-INSTALLPATH	= /opt/trend/tme
+INSTALLPATH	?= /opt/trend/tme
 BUILD_PREFIX    ?=
 SHELL       = /bin/bash
-
-SRCDIR      = src
 
 DATE_TAG    =	$(shell date -u "+%Y%m%dZ")
 
@@ -60,12 +58,12 @@ install: default
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)/portal-web
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)/portal-web/public/images
 	mkdir -p $(BUILD_PREFIX)/etc/init.d
-	cp -rf $(SRCDIR)/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)/portal-web
-	cp -rf $(CONFPATH)/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)
-	cp -rf $(BINPATH)/portal-web.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
-	cp -rf $(BINPATH)/install_tme-portal-web.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
-	cp -rf $(BINPATH)/remove_tme-portal-web.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
-	cp -rf $(BINPATH)/tme-portal-web $(BUILD_PREFIX)/etc/init.d
+	cp -rf src/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)/portal-web
+	cp -rf conf/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)
+	cp -rf bin/portal-web.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
+	cp -rf bin/install_tme-portal-web.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
+	cp -rf bin/remove_tme-portal-web.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
+	cp -rf bin/tme-portal-web $(BUILD_PREFIX)/etc/init.d
 	rm -rf $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)/portal-web/vendor
 	rm -rf $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)/portal-web/tests
 

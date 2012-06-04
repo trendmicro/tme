@@ -19,13 +19,13 @@ NAME        = tme-mist
 VERSION     = 2.5
 PKGNAME     = ${NAME}-${VERSION}
 
-BINPATH     = bin
-BUILDPATH   = build
-LIBPATH     = lib
-CONFPATH    = conf
-WEBPATH		= web
+BINPATH     ?= bin
+BUILDPATH   ?= build
+LIBPATH     ?= lib
+CONFPATH    ?= conf
+WEBPATH		?= web
 RPMPATH     = $(BUILDPATH)/$(PKGNAME)
-INSTALLPATH	= /opt/trend/tme
+INSTALLPATH	?= /opt/trend/tme
 BUILD_PREFIX    ?=
 SHELL       = /bin/bash
 
@@ -50,15 +50,15 @@ install: default
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)
-	cp -f $(BINPATH)/tme-mistd $(BUILD_PREFIX)/etc/init.d
-	cp -f $(BINPATH)/mist-line-gen $(BUILD_PREFIX)/usr/bin
-	cp -f $(BINPATH)/tme-console $(BUILD_PREFIX)/usr/bin
-	cp -f $(BINPATH)/mistd.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
-	cp -f $(BINPATH)/install_tme-mistd.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
-	cp -f $(BINPATH)/remove_tme-mistd.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
+	cp -f bin/tme-mistd $(BUILD_PREFIX)/etc/init.d
+	cp -f bin/mist-line-gen $(BUILD_PREFIX)/usr/bin
+	cp -f bin/tme-console $(BUILD_PREFIX)/usr/bin
+	cp -f bin/mistd.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
+	cp -f bin/install_tme-mistd.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
+	cp -f bin/remove_tme-mistd.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	cp -f $(BUILDPATH)/*.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
-	cp -rf $(LIBPATH)/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
-	cp -rf $(CONFPATH)/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)
+	cp -rf lib/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -rf conf/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)
 
 .PHONY: deb
 deb:
