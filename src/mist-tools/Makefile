@@ -21,10 +21,10 @@ VERSION     = 2.5
 PKGNAME     = ${NAME}-${VERSION}
 
 BINPATH     = $(WORKS_DIR)/mist-tools
-BUILDPATH   = build
-LIBPATH     = lib
-CONFPATH    = conf
-WEBPATH		= web
+BUILDPATH   ?= build
+LIBPATH     ?= lib
+CONFPATH    ?= conf
+WEBPATH		?= web
 RPMPATH     = $(BUILDPATH)/$(PKGNAME)
 INSTALLPATH	?= /opt/trend/tme
 BUILD_PREFIX    ?=

@@ -19,11 +19,11 @@ NAME        = tme-common
 VERSION     = 2.5
 PKGNAME     = ${NAME}-${VERSION}
 
-BINPATH     = bin
-BUILDPATH   = build
-LIBPATH     = lib
-CONFPATH    = conf
-WEBPATH		= web
+BINPATH     ?= bin
+BUILDPATH   ?= build
+LIBPATH     ?= lib
+CONFPATH    ?= conf
+WEBPATH		?= web
 RPMPATH     = $(BUILDPATH)/$(PKGNAME)
 INSTALLPATH	?= /opt/trend/tme
 BUILD_PREFIX	?= 

@@ -19,11 +19,11 @@ NAME	= tme-portal-collector
 VERSION     = 2.5
 PKGNAME     = ${NAME}-${VERSION}
 
-BINPATH     = bin
-BUILDPATH   = build
-LIBPATH     = lib
-CONFPATH    = conf
-WEBPATH		= web
+BINPATH     ?= bin
+BUILDPATH   ?= build
+LIBPATH     ?= lib
+CONFPATH    ?= conf
+WEBPATH		?= web
 RPMPATH     = $(BUILDPATH)/$(PKGNAME)
 INSTALLPATH	?= /opt/trend/tme
 BUILD_PREFIX    ?=
@@ -49,14 +49,14 @@ install: default
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)
-	cp -f $(BINPATH)/tme-portal-collector $(BUILD_PREFIX)/etc/init.d
-	cp -f $(BINPATH)/portal-collector.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
-	cp -f $(BINPATH)/install_tme-portal-collector.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
-	cp -f $(BINPATH)/remove_tme-portal-collector.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
-	cp -f $(BINPATH)/archive_metrics.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
+	cp -f bin/tme-portal-collector $(BUILD_PREFIX)/etc/init.d
+	cp -f bin/portal-collector.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
+	cp -f bin/install_tme-portal-collector.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
+	cp -f bin/remove_tme-portal-collector.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
+	cp -f bin/archive_metrics.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	cp -f $(BUILDPATH)/*.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
-	cp -rf $(LIBPATH)/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
-	cp -rf $(CONFPATH)/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)
+	cp -rf lib/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -rf conf/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)
 
 .PHONY: deb
 deb:
