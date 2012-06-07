@@ -21,7 +21,13 @@ PKGNAME     = ${NAME}-${VERSION}
 
 BINPATH     ?= bin
 BUILDPATH   ?= build
-LIBPATH     ?= lib
+# jeffhung.20120607:
+# - Added trailing 0 since LIBPATH conflict with gem bundle eventmachine. When
+#   building its native extension LIBPATH is also used. When the variable is
+#   not "lib" the build will fail.
+# - This is an ugly fix and we should revise the variable names to model
+#   runtime directories. See the up coming rundirs branch.
+LIBPATH0    ?= lib
 CONFPATH    ?= conf
 WEBPATH		?= web
 RPMPATH     = $(BUILDPATH)/$(PKGNAME)
@@ -55,17 +61,17 @@ default:
 install: default
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)
-	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)/portal-web
-	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)/portal-web/public/images
+	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH0)/portal-web
+	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH0)/portal-web/public/images
 	mkdir -p $(BUILD_PREFIX)/etc/init.d
-	cp -rf src/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)/portal-web
+	cp -rf src/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH0)/portal-web
 	cp -rf conf/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)
 	cp -rf bin/portal-web.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	cp -rf bin/install_tme-portal-web.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	cp -rf bin/remove_tme-portal-web.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	cp -rf bin/tme-portal-web $(BUILD_PREFIX)/etc/init.d
-	rm -rf $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)/portal-web/vendor
-	rm -rf $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)/portal-web/tests
+	rm -rf $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH0)/portal-web/vendor
+	rm -rf $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH0)/portal-web/tests
 
 .PHONY: deb
 deb:
