@@ -43,7 +43,8 @@ You have to follow this step to use RVM to install Ruby 1.9.2:
 4. `rvm install 1.9.2 ; rvm default 1.9.2`
 5. `gem install bundler`
 
-#### Mac OS X (Lion)
+Mac OS X (Lion)
+---------------
 
 (draft)
 
