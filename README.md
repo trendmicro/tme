@@ -1,6 +1,8 @@
-### How to Build TME
+How to Build TME
+================
 
-#### CentOS
+CentOS
+------
 
 Tested on CentOS 5 and 6
 
@@ -17,7 +19,8 @@ Make sure that the binary executable of ant is included in the search path, and 
 
 Simply run `make rpm` in the top directory, and all the RPM packages of TME will be generated to `output/artifacts`
 
-#### Ubuntu
+Ubuntu
+------
 
 Tested on Ubuntu 10.04 LTS, using OpenJDK should work.
 
