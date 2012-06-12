@@ -2,8 +2,14 @@
 
 source /opt/trend/tme/conf/common/common-env.sh
 
-CLASSPATH="/opt/trend/tme/conf/graph-editor:/opt/trend/tme/lib/*:/opt/trend/tme/lib/jersey/*:/opt/trend/tme/lib/jetty/*"
-JVM_ARGS="-Djava.security.auth.login.config=/opt/trend/tme/conf/graph-editor/ldaploginmodule.conf -Djava.security.egd=file:/dev/./urandom"
+CLASSPATH="$CLASSPATH:/opt/trend/tme/conf/graph-editor"
+CLSSSPATH="$CLASSPATH:/opt/trend/tme/lib/*"
+CLASSPATH="$CLASSPATH:/opt/trend/tme/lib/jersey/*"
+CLASSPATH="$CLASSPATH:/opt/trend/tme/lib/jetty/*"
+CLASSPATH=`echo "$CLASSPATH" | sed -e 's/^://'` # remove leading colon
+
+JVM_ARGS="$JVM_ARGS -Djava.security.auth.login.config=/opt/trend/tme/conf/graph-editor/ldaploginmodule.conf"
+JVM_ARGS="$JVM_ARGS -Djava.security.egd=file:/dev/./urandom"
 
 rm -rf /var/lib/tme/graph-editor/jsp
 mkdir -p /var/lib/tme/graph-editor/jsp
