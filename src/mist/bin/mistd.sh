@@ -2,7 +2,9 @@
 
 source /opt/trend/tme/conf/common/common-env.sh
 
-CLASSPATH="/opt/trend/tme/conf/mist:/opt/trend/tme/lib/*"
+CLASSPATH="$CLASSPATH:/opt/trend/tme/conf/mist"
+CLASSPATH="$CLASSPATH:/opt/trend/tme/lib/*"
+CLASSPATH=`echo "$CLASSPATH" | sed -e 's/^://'` # remove leading colon
 
 if [ "$1" == "daemon" ]
 then
