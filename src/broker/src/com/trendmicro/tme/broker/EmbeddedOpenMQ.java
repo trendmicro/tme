@@ -33,12 +33,14 @@ public class EmbeddedOpenMQ implements DataListener {
     private DataObserver obs;
     private String mqHome;
     private String mqVar;
+    private String mqLib;
     private String tmeRoot;
     
-    public EmbeddedOpenMQ(String mqHome, String mqVar, Properties config) throws Exception {
+    public EmbeddedOpenMQ(String mqHome, String mqVar, String mqLib, Properties config) throws Exception {
         host = InetAddress.getLocalHost().getHostAddress();
         this.mqHome = mqHome;
         this.mqVar = mqVar;
+        this.mqLib = mqLib;
         this.config = config;
         tmeRoot = config.getProperty("com.trendmicro.tme.broker.zookeeper.tmeroot");
         obs = new DataObserver(tmeRoot + "/broker/" + host, this, false, 0);
@@ -49,8 +51,17 @@ public class EmbeddedOpenMQ implements DataListener {
         ClientRuntime clientRuntime = ClientRuntime.getRuntime();
         brokerInstance = clientRuntime.createBrokerInstance();
         
+        // Although only -imqhome and -varhome options are listed as possible
+        // args, as shown in BrokerInstance.parseArgs(), the -libhome option is
+        // also supported according to BrokerProcess.convertArgs(), where the
+        // BrokerProcess class is the base class of all three possible
+        // JMSBroker implementations.
+        //
+        // See: com.sun.messaging.jmq.jmsclient.runtime.BrokerInstance
+        //      com.sun.messaging.jmq.jmsclient.runtime.impl.BrokerInstanceImpl
+        //      com.sun.messaging.jmq.jmsserver.BrokerProcess.convertArgs()
         Properties brokerConfig = brokerInstance.parseArgs(new String[] {
-            "-imqhome", mqHome, "-varhome", mqVar
+            "-imqhome", mqHome, "-varhome", mqVar, "-libhome", mqLib
         });
         brokerConfig.putAll(config);
         brokerInstance.init(brokerConfig, null);
@@ -178,6 +189,7 @@ public class EmbeddedOpenMQ implements DataListener {
     public static void main(String argv[]) throws Exception {
         String mqHome = System.getProperty("com.trendmicro.tme.broker.mqhome", "/opt/trend/tme");
         String mqVar = System.getProperty("com.trendmicro.tme.broker.mqvar", "/var/lib/tme/broker");
+        String mqLib = System.getProperty("com.trendmicro.tme.broker.mqlib", "/opt/trend/tme/lib");
         String configPath = System.getProperty("com.trendmicro.tme.broker.config", "/opt/trend/tme/conf/broker/config.properties");
         
         Properties config = new Properties();
@@ -187,7 +199,7 @@ public class EmbeddedOpenMQ implements DataListener {
         
         ZKSessionManager.initialize(config.getProperty("com.trendmicro.tme.broker.zookeeper.quorum"), Integer.valueOf(config.getProperty("com.trendmicro.tme.broker.zookeeper.timeout")));
         
-        final EmbeddedOpenMQ mq = new EmbeddedOpenMQ(mqHome, mqVar, config);
+        final EmbeddedOpenMQ mq = new EmbeddedOpenMQ(mqHome, mqVar, mqLib, config);
         mq.start();
         Runtime.getRuntime().addShutdownHook(new Thread() {
             @Override
