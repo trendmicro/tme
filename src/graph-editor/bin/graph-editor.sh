@@ -3,7 +3,7 @@
 source /opt/trend/tme/conf/common/common-env.sh
 
 CLASSPATH="$CLASSPATH:/opt/trend/tme/conf/graph-editor"
-CLSSSPATH="$CLASSPATH:/opt/trend/tme/lib/*"
+CLASSPATH="$CLASSPATH:/opt/trend/tme/lib/*"
 CLASSPATH="$CLASSPATH:/opt/trend/tme/lib/jersey/*"
 CLASSPATH="$CLASSPATH:/opt/trend/tme/lib/jetty/*"
 CLASSPATH=`echo "$CLASSPATH" | sed -e 's/^://'` # remove leading colon
