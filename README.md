@@ -72,4 +72,6 @@ Step 4: Install [Homebrew](http://mxcl.github.com/homebrew/):
 Step 5: Install [CMake](http://www.cmake.org/) using Homebrew:
 
 	brew install cmake
+	brew install coreutils
+	brew install coreutils  # mkmf needs /usr/local/bin/gmkdir
 
