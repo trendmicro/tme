@@ -98,6 +98,7 @@ public class ProducerSession extends Session {
 
     private static final long ROUTE_CACHE_TTL_MILLIS = 2000;
     private long lastRouteUpdate;
+    private boolean retryDeliver = true;
 
     private HashMap<Exchange, List<Exchange>> routeCacheMap = new HashMap<Exchange, List<Exchange>>();
 
@@ -189,7 +190,7 @@ public class ProducerSession extends Session {
             if(dest.getName().length() == 0)
                 continue;
 
-            for(;;) {
+            while(retryDeliver) {
                 try {
                     Client c = null;
                     synchronized(allClients) {
@@ -222,6 +223,7 @@ public class ProducerSession extends Session {
         // Accept the incoming connection and setup socket IO streams
         if(!acceptConnection())
             return;
+        retryDeliver = true;
         isReady = true;
 
         Packet packet = new Packet();
@@ -315,12 +317,14 @@ public class ProducerSession extends Session {
 
         // Wait for 10 seconds to deliver the final message
         try {
-            sessionThread.join(60000);
+            sessionThread.join(10000);
         }
         catch(InterruptedException e) {
         }
-        if(sessionThread.isAlive())
+        if(sessionThread.isAlive()) {
+            retryDeliver = false;
             logger.error("force closing the producer, the message might not have been delivered!");
+        }
     }
 
     @Override
