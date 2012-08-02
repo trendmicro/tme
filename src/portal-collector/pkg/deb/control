@@ -3,7 +3,7 @@ Version: 2.5
 Section: base
 Priority: optional
 Architecture: all
-Depends: openjdk-6-jdk, tme-common (>= 2.5-20120420Z), monit, rrdtool
+Depends: openjdk-6-jdk, tme-common (>= 2.5-20120802Z), monit, rrdtool
 Maintainer: https://github.com/trendmicro/tme
 Description: The daemon to collect exchange metrics
 

@@ -27,6 +27,8 @@ src/common/lib/servlet-api-2.5.jar
 src/common/lib/slf4j-api-1.6.2.jar
 src/common/lib/xerces-1.4.4.jar
 src/common/lib/zookeeper-3.3.5.jar
+src/common/lib/jackson-core-asl-1.5.5.jar
+src/common/lib/jackson-mapper-asl-1.5.5.jar
 
 src/graph-editor/build/
 
@@ -37,4 +39,7 @@ src/mist/lib/org.apache.servicemix.bundles.jcip-annotations-1.0_1.jar
 src/mist/src/com/trendmicro/mist/Version.java
 
 src/portal-collector/build/
+
+src/portal-web/src/.bundle/
+src/portal-web/src/lib/ruby/
 

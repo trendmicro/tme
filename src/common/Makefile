@@ -52,8 +52,24 @@ install: default
 	cp -f bin/daemon.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	cp -f bin/create_zookeeper_nodes.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	cp -f conf/common/common-env.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)/common
-	cp -rf lib/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
-	rm -rf $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)/xerces-1.4.4.jar
+	cp -f lib/MIST-proto.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/codi-1.0-812.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/commons-cli-1.2.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/commons-codec-1.3.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/commons-io-1.4.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/commons-lang-2.5.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/gson-2.0.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/imq.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/imqjmx.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/jms.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/log4j-1.2.16.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/logback-classic-0.9.30.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/logback-core-0.9.30.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/protobuf-java-2.1.0.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/slf4j-api-1.6.2.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/zookeeper-3.3.5.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/jackson-mapper-asl-1.5.5.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/jackson-core-asl-1.5.5.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
 	cp -f $(BUILDPATH)/*.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
 
 .PHONY: deb

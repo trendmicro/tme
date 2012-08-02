@@ -57,7 +57,9 @@ install: default
 	cp -f bin/install_tme-mistd.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	cp -f bin/remove_tme-mistd.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	cp -f $(BUILDPATH)/*.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
-	cp -rf lib/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/jline-0.9.94.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/org.apache.servicemix.bundles.jcip-annotations-1.0_1.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/text-table-formatter-1.0.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
 	cp -rf conf/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)
 
 .PHONY: deb

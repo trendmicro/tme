@@ -11,5 +11,7 @@
         <dependency org="ch.qos.logback" name="logback-core" rev="0.9.30" conf="*->*,!sources,!javadoc"/>
         <dependency org="org.apache.zookeeper" name="zookeeper" rev="3.3.5" conf="*->*,!sources,!javadoc"/>
         <dependency org="com.google.protobuf" name="protobuf-java" rev="2.1.0" conf="*->*,!sources,!javadoc"/>
+        <dependency org="org.codehaus.jackson" name="jackson-mapper-asl" rev="1.5.5" conf="*->*,!sources,!javadoc"/>
+        <dependency org="org.codehaus.jackson" name="jackson-core-asl" rev="1.5.5" conf="*->*,!sources,!javadoc"/>
     </dependencies>
 </ivy-module>

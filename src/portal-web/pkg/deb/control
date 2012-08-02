@@ -3,7 +3,7 @@ Version: 2.5
 Section: base
 Priority: optional
 Architecture: all
-Depends: tme-common (>= 2.5-20120301Z), monit, rrdtool
+Depends: tme-common (>= 2.5-20120802Z), monit, rrdtool
 Maintainer: https://github.com/trendmicro/tme
 Description: The web server to show exchange metrics
 
