@@ -29,7 +29,7 @@ public class ExchangeMetricCollector {
 
     private Query createQuery() {
         Query query = new Query();
-        query.setObj("com.sun.messaging.jms.server:type=Destination,subtype=Monitor,desttype=*,name=*");
+        query.setObj("com.sun.messaging.jms.server:type=Destination,subtype=*,desttype=*,name=*");
         query.addAttr("NumMsgs");
         query.addAttr("NumMsgsIn");
         query.addAttr("NumMsgsOut");
@@ -39,6 +39,9 @@ public class ExchangeMetricCollector {
         query.addAttr("MsgBytesIn");
         query.addAttr("MsgBytesOut");
         query.addAttr("TotalMsgBytes");
+        query.addAttr("MaxNumMsgs");
+        query.addAttr("MaxTotalMsgBytes");
+        query.addAttr("LimitBehavior");
         query.addOutputWriter(writer);
         return query;
     }

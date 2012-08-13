@@ -85,22 +85,55 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
         }
     }
 
+    static class Config {
+        private String limitBehavior;
+        private long maxNumMsgs;
+        private long maxTotalMsgBytes;
+
+        public String getLimitBehavior() {
+            return limitBehavior;
+        }
+
+        public void setLimitBehavior(String limitBehavior) {
+            this.limitBehavior = limitBehavior;
+        }
+
+        public long getMaxNumMsgs() {
+            return maxNumMsgs;
+        }
+
+        public void setMaxNumMsgs(long maxNumMsgs) {
+            this.maxNumMsgs = maxNumMsgs;
+        }
+
+        public long getMaxTotalMsgBytes() {
+            return maxTotalMsgBytes;
+        }
+
+        public void setMaxTotalMsgBytes(long maxTotalMsgBytes) {
+            this.maxTotalMsgBytes = maxTotalMsgBytes;
+        }
+    }
+
     private static final Logger logger = LoggerFactory.getLogger(ExchangeMetricWriter.class);
     private static final String[] MBEAN_INVOKE_SIG = new String[] {
         String.class.getName()
     };
     private static final ObjectName consumerManagerName;
     private static final ObjectName producerManagerName;
-    
+
     private String templateFile = "";
     private String outputPath = "";
     private Pattern namePattern = Pattern.compile(".*,name=\"([^\"]*)\",.*");
     private Pattern typePattern = Pattern.compile(".*desttype=(.),.*");
+    private Pattern configPattern = Pattern.compile(".*,subtype=Config,.*");
+    // desttype=q,name="akame.in",subtype=Monitor,type=Destinatio
     private ObjectMapper mapper = new ObjectMapper();
-    private HashMap<String, Record> lastRecords= new HashMap<String, Record>();
-    
+    private HashMap<String, Record> lastRecords = new HashMap<String, Record>();
+    private HashMap<String, Config> lastConfigs = new HashMap<String, Config>();
+
     private Map<String, RRDToolWriter> writerMap = new HashMap<String, RRDToolWriter>();
-    
+
     static {
         try {
             consumerManagerName = new ObjectName("com.sun.messaging.jms.server:type=ConsumerManager,subtype=Monitor");
@@ -110,7 +143,7 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
             throw new RuntimeException(e);
         }
     }
-    
+
     private RRDToolWriter getWriter(String broker, String exchangeName, boolean isQueue) throws LifecycleException {
         String key = broker + exchangeName + (isQueue ? "queue": "topic");
         if(!writerMap.containsKey(key)) {
@@ -124,7 +157,7 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
         }
         return writerMap.get(key);
     }
-    
+
     private void queryClients(String broker, String typeName, ExchangeMetric metric) throws Exception {
         JMXConnector connector;
         MBeanServerConnection connection;
@@ -132,7 +165,7 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
         acf = new AdminConnectionFactory();
         acf.setProperty(AdminConnectionConfiguration.imqAddress, broker);
         connector = acf.createConnection();
-        
+
         try {
             connection = connector.getMBeanServerConnection();
             ObjectName exchangeManagerName = new ObjectName("com.sun.messaging.jms.server:" + typeName);
@@ -154,7 +187,7 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
                     }
                 }
             }
-            
+
             String[] producerIDs = (String[]) connection.invoke(exchangeManagerName, "getProducerIDs", null, null);
             if(producerIDs != null) {
                 for(String producerID : producerIDs) {
@@ -178,32 +211,55 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
             connector.close();
         }
     }
-    
+
+    private void storeExchangeConfig(String exchangeName, Query q) {
+        if(!lastConfigs.containsKey(exchangeName)) {
+            lastConfigs.put(exchangeName, new Config());
+        }
+        Config c = lastConfigs.get(exchangeName);
+        for(Result res : q.getResults()) {
+            if(res.getAttributeName().equals("LimitBehavior")) {
+                c.setLimitBehavior(res.getValues().get("LimitBehavior").toString());
+            }
+            else if(res.getAttributeName().equals("MaxTotalMsgBytes")) {
+                c.setMaxTotalMsgBytes((Long) res.getValues().get("MaxTotalMsgBytes"));
+            }
+            else if(res.getAttributeName().equals("MaxNumMsgs")) {
+                c.setMaxNumMsgs((Long) res.getValues().get("MaxNumMsgs"));
+            }
+        }
+    }
+
     @Override
     public void doWrite(Query q) throws Exception {
         if(q.getResults().isEmpty()) {
             logger.error("Empty query result!");
             return;
         }
-        
+
         Matcher m = namePattern.matcher(q.getResults().get(0).getTypeName());
         if(!m.matches()) {
             logger.error("Name parsing error: {}", q.getResults().get(0).getTypeName());
             return;
         }
         String exchangeName = m.group(1);
-        
+
+        if(configPattern.matcher(q.getResults().get(0).getTypeName()).matches()) {
+            storeExchangeConfig(exchangeName, q);
+            return;
+        }
+
         m = typePattern.matcher(q.getResults().get(0).getTypeName());
         if(!m.matches()) {
             logger.error("Type parsing error: {}", q.getResults().get(0).getTypeName());
             return;
         }
         boolean isQueue = m.group(1).equals("q");
-        
+
         if(exchangeName.equals("mq.sys.dmq")) {
             return;
         }
-        
+
         RRDToolWriter writer = getWriter(q.getServer().getHost(), exchangeName, isQueue);
         ExchangeMetric metric = new ExchangeMetric(q.getServer().getHost(), isQueue ? "queue": "topic", exchangeName, String.format("%s/%s-%s.rrd", outputPath, isQueue ? "queue": "topic", exchangeName));
 
@@ -284,13 +340,19 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
                 metric.addMetric("Pending Size", res.getValues().get("TotalMsgBytes").toString());
             }
         }
+        Config c = lastConfigs.get(exchangeName);
+        if(c != null) {
+            metric.addMetric("Limit Behavior", c.getLimitBehavior());
+            metric.addMetric("Max Pending", Long.toString(c.getMaxNumMsgs()));
+            metric.addMetric("Max Pending Size", Long.toString(c.getMaxTotalMsgBytes()));
+        }
 
         long numMsgsDropped = numMsgsIn - numMsgsOut - numMsgs;
         metric.addMetric("Dropped", String.valueOf(numMsgsDropped));
         if(lastRecord == null || lastRecord.getMsgDrop() > numMsgsDropped) {
             q.getResults().get(0).addValue("NumMsgDropped", "0");
         }
-        else{
+        else {
             q.getResults().get(0).addValue("NumMsgDropped", String.valueOf((long) ((float) (numMsgsDropped - lastRecord.getMsgDrop()) / (timestamp - lastRecord.getTimestamp()) * 1000)));
         }
         currentRecord.setMsgDrop(numMsgsDropped);
@@ -298,7 +360,7 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
 
         writer.validateSetup(q);
         writer.doWrite(q);
-        
+
         File file = new File(String.format("%s/%s-%s.json", outputPath, isQueue ? "queue": "topic", exchangeName));
         FileChannel channel = new RandomAccessFile(file, "rw").getChannel();
         try {
@@ -318,7 +380,7 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
             channel.close();
         }
     }
-    
+
     @Override
     public void validateSetup(Query q) throws ValidationException {
         try {
