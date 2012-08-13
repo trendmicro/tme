@@ -127,10 +127,10 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
     private Pattern namePattern = Pattern.compile(".*,name=\"([^\"]*)\",.*");
     private Pattern typePattern = Pattern.compile(".*desttype=(.),.*");
     private Pattern configPattern = Pattern.compile(".*,subtype=Config,.*");
-    // desttype=q,name="akame.in",subtype=Monitor,type=Destinatio
     private ObjectMapper mapper = new ObjectMapper();
     private HashMap<String, Record> lastRecords = new HashMap<String, Record>();
     private HashMap<String, Config> lastConfigs = new HashMap<String, Config>();
+    private HashMap<String, Long> lastAlertTs = new HashMap<String, Long>();
 
     private Map<String, RRDToolWriter> writerMap = new HashMap<String, RRDToolWriter>();
 
@@ -230,6 +230,18 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
         }
     }
 
+    private void alert(String exchangeName, long pending, int numConsumers, int numProducers) {
+        if(!lastAlertTs.containsKey(exchangeName)) {
+            lastAlertTs.put(exchangeName, System.currentTimeMillis());
+            return;
+        }
+        if(System.currentTimeMillis() - lastAlertTs.get(exchangeName) > 60000) {
+            lastAlertTs.put(exchangeName, System.currentTimeMillis());
+            logger.error(String.format("alert: exchange %s: %d msgs, %d consumers, %d producers", exchangeName, pending, numConsumers, numProducers));
+            // TODO: email
+        }
+    }
+
     @Override
     public void doWrite(Query q) throws Exception {
         if(q.getResults().isEmpty()) {
@@ -276,6 +288,7 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
         long numMsgs = 0;
         long numMsgsIn = 0;
         long numMsgsOut = 0;
+        long lastConsumed = 0;
         Record currentRecord = new Record();
         currentRecord.setTimestamp(timestamp);
         for(Result res : q.getResults()) {
@@ -301,7 +314,8 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
                     res.addValue("NumMsgsOut", "0");
                 }
                 else {
-                    res.addValue("NumMsgsOut", String.valueOf((long) ((float) (numMsgsOut - lastRecord.getMsgOut()) / (timestamp - lastRecord.getTimestamp()) * 1000)));
+                    lastConsumed = numMsgsOut - lastRecord.getMsgOut();
+                    res.addValue("NumMsgsOut", String.valueOf((long) ((float) lastConsumed / (timestamp - lastRecord.getTimestamp()) * 1000)));
                 }
                 currentRecord.setMsgOut(numMsgsOut);
             }
@@ -345,6 +359,10 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
             metric.addMetric("Limit Behavior", c.getLimitBehavior());
             metric.addMetric("Max Pending", Long.toString(c.getMaxNumMsgs()));
             metric.addMetric("Max Pending Size", Long.toString(c.getMaxTotalMsgBytes()));
+        }
+
+        if(numMsgs > 0 && lastConsumed == 0) {
+            alert(exchangeName, numMsgs, Integer.valueOf(metric.getMetrics().get("Consumers")), Integer.valueOf(metric.getMetrics().get("Producers")));
         }
 
         long numMsgsDropped = numMsgsIn - numMsgsOut - numMsgs;
