@@ -266,7 +266,8 @@
 				if(idx > 0){
 					exchange.innerHTML = exchange.innerHTML.substr(0, idx);
 				}
-                exchange.innerHTML = exchange.innerHTML + '<br>' + metric.Pending;
+                exchange.innerHTML = exchange.innerHTML + '<br>' + metric.Pending + " / " + metric["Max Pending"];
+                exchange.innerHTML = exchange.innerHTML + '<br>' + metric["Limit Behavior"];
                 setTimeout("refresh_metric(document.getElementById('" + exchange.id + "'));", 5000);                    
             },
             error: function(xhr,text,err){
