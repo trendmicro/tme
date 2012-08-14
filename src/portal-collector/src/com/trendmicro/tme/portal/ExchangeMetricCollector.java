@@ -152,6 +152,7 @@ public class ExchangeMetricCollector {
             if(!receivers.isEmpty()) {
                 Properties mailProps = new Properties();
                 mailProps.put("mail.smtp.host", prop.getProperty("com.trendmicro.tme.portal.collector.alert.smtp", "localhost"));
+                mailProps.put("mail.from", prop.getProperty("com.trendmicro.tme.portal.collector.alert.from", "tme-noreply@localdomain"));
                 mailSession = Session.getInstance(mailProps, null);
             }
             ExchangeMetricWriter writer = new ExchangeMetricWriter(receivers, Integer.valueOf(prop.getProperty("com.trendmicro.tme.portal.collector.alert.interval", "60")), mailSession);
