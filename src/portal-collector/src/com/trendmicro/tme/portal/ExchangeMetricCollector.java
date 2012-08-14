@@ -149,7 +149,7 @@ public class ExchangeMetricCollector {
                 receivers = Arrays.asList(receiversStr.split(","));
             }
             Session mailSession = null;
-            if(receivers.isEmpty()) {
+            if(!receivers.isEmpty()) {
                 Properties mailProps = new Properties();
                 mailProps.put("mail.smtp.host", prop.getProperty("com.trendmicro.tme.portal.collector.alert.smtp", "localhost"));
                 mailSession = Session.getInstance(mailProps, null);
