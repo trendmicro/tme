@@ -4,7 +4,12 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Properties;
+
+import javax.mail.Session;
 
 import org.apache.commons.io.IOUtils;
 import org.slf4j.Logger;
@@ -135,7 +140,21 @@ public class ExchangeMetricCollector {
                 throw new Exception("Cannot connect to ZooKeeper Quorom " + zkQuorum);
             }
 
-            ExchangeMetricWriter writer = new ExchangeMetricWriter();
+            String receiversStr = prop.getProperty("com.trendmicro.tme.portal.collector.alert.receiver", "").trim();
+            List<String> receivers;
+            if(receiversStr.isEmpty()) {
+                receivers = new ArrayList<String>();
+            }
+            else {
+                receivers = Arrays.asList(receiversStr.split(","));
+            }
+            Session mailSession = null;
+            if(receivers.isEmpty()) {
+                Properties mailProps = new Properties();
+                mailProps.put("mail.smtp.host", prop.getProperty("com.trendmicro.tme.portal.collector.alert.smtp", "localhost"));
+                mailSession = Session.getInstance(mailProps, null);
+            }
+            ExchangeMetricWriter writer = new ExchangeMetricWriter(receivers, Integer.valueOf(prop.getProperty("com.trendmicro.tme.portal.collector.alert.interval", "60")), mailSession);
             writer.addSetting("templateFile", prop.getProperty("com.trendmicro.tme.portal.collector.template"));
             writer.addSetting("outputPath", prop.getProperty("com.trendmicro.tme.portal.collector.outputdir"));
             ExchangeMetricArchiver archiver = new ExchangeMetricArchiver((String) prop.getProperty("com.trendmicro.tme.portal.collector.outputdir"), (String) prop.getProperty("com.trendmicro.tme.portal.collector.archiver.maxrecords"), Integer.valueOf((String) prop.getProperty("com.trendmicro.tme.portal.collector.archiver.interval")));

@@ -4,11 +4,18 @@ import java.io.File;
 import java.io.RandomAccessFile;
 import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
+import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.mail.Message;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.MimeMessage;
 import javax.management.MBeanServerConnection;
 import javax.management.ObjectName;
 import javax.management.openmbean.CompositeData;
@@ -133,6 +140,9 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
     private HashMap<String, Long> lastAlertTs = new HashMap<String, Long>();
 
     private Map<String, RRDToolWriter> writerMap = new HashMap<String, RRDToolWriter>();
+    private List<String> alertReceivers;
+    private int alertIntervalSec;
+    private Session mailSession;
 
     static {
         try {
@@ -142,6 +152,12 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
         catch(Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public ExchangeMetricWriter(List<String> alertReceivers, int alertIntervalSec, Session mailSession) {
+        this.alertReceivers = alertReceivers;
+        this.alertIntervalSec = alertIntervalSec;
+        this.mailSession = mailSession;
     }
 
     private RRDToolWriter getWriter(String broker, String exchangeName, boolean isQueue) throws LifecycleException {
@@ -230,15 +246,38 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
         }
     }
 
-    private void alert(String exchangeName, long pending, int numConsumers, int numProducers) {
+    private void alert(String exchangeName, ExchangeMetric metric) {
         if(!lastAlertTs.containsKey(exchangeName)) {
             lastAlertTs.put(exchangeName, System.currentTimeMillis());
             return;
         }
-        if(System.currentTimeMillis() - lastAlertTs.get(exchangeName) > 60000) {
+        if(System.currentTimeMillis() - lastAlertTs.get(exchangeName) > alertIntervalSec * 1000) {
             lastAlertTs.put(exchangeName, System.currentTimeMillis());
-            logger.error(String.format("alert: exchange %s: %d msgs, %d consumers, %d producers", exchangeName, pending, numConsumers, numProducers));
-            // TODO: email
+            String subject = String.format("[Alert] Exchange %s has not been consumed", exchangeName);
+            StringBuilder msgBuilder = new StringBuilder();
+            msgBuilder.append(String.format("[Alert] Exchange %s has not been consumed:\n\n", exchangeName));
+            msgBuilder.append(String.format("Pending: %s / %s\n", metric.getMetrics().get("Pending"), metric.getMetrics().get("Max Pending")));
+            msgBuilder.append(String.format("Pending for ACK: %s\n", metric.getMetrics().get("Pending ACK")));
+            msgBuilder.append(String.format("Pending Size: %s / %s\n", metric.getMetrics().get("Pending Size"), metric.getMetrics().get("Max Pending Size")));
+            msgBuilder.append(String.format("Consumer: %s, Producer: %s", metric.getMetrics().get("Consumers"), metric.getMetrics().get("Producers")));
+
+            String msg = msgBuilder.toString();
+            logger.warn(subject);
+
+            for(String receiver : alertReceivers) {
+                try {
+                    MimeMessage mail = new MimeMessage(mailSession);
+                    mail.setFrom();
+                    mail.setRecipients(Message.RecipientType.TO, receiver);
+                    mail.setSubject(subject);
+                    mail.setSentDate(new Date());
+                    mail.setText(msg);
+                    Transport.send(mail);
+                }
+                catch(Exception e) {
+                    logger.error("unable to send alert mail: {}", e.getMessage(), e);
+                }
+            }
         }
     }
 
@@ -286,6 +325,7 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
         Record lastRecord = lastRecords.get(exchangeName);
         long timestamp = System.currentTimeMillis();
         long numMsgs = 0;
+        long totalMsgBytes = 0;
         long numMsgsIn = 0;
         long numMsgsOut = 0;
         long lastConsumed = 0;
@@ -351,7 +391,8 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
                 currentRecord.setMsgOutSize(numMsgsOutSize);
             }
             else if(res.getAttributeName().equals("TotalMsgBytes")) {
-                metric.addMetric("Pending Size", res.getValues().get("TotalMsgBytes").toString());
+                totalMsgBytes = (Long) res.getValues().get("TotalMsgBytes");
+                metric.addMetric("Pending Size", Long.toString(totalMsgBytes));
             }
         }
         Config c = lastConfigs.get(exchangeName);
@@ -362,7 +403,7 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
         }
 
         if(numMsgs > 0 && lastConsumed == 0) {
-            alert(exchangeName, numMsgs, Integer.valueOf(metric.getMetrics().get("Consumers")), Integer.valueOf(metric.getMetrics().get("Producers")));
+            alert(exchangeName, metric);
         }
 
         long numMsgsDropped = numMsgsIn - numMsgsOut - numMsgs;
