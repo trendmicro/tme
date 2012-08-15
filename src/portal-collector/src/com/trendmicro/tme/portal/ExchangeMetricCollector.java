@@ -21,6 +21,7 @@ import com.googlecode.jmxtrans.model.Query;
 import com.googlecode.jmxtrans.model.Server;
 import com.googlecode.jmxtrans.util.ValidationException;
 import com.trendmicro.codi.ZKSessionManager;
+import com.trendmicro.codi.ZNode;
 import com.trendmicro.tme.mfr.BrokerFarm;
 import com.trendmicro.mist.proto.ZooKeeperInfo.Broker;
 
@@ -140,20 +141,21 @@ public class ExchangeMetricCollector {
                 throw new Exception("Cannot connect to ZooKeeper Quorom " + zkQuorum);
             }
 
-            String receiversStr = prop.getProperty("com.trendmicro.tme.portal.collector.alert.receiver", "").trim();
-            List<String> receivers;
-            if(receiversStr.isEmpty()) {
-                receivers = new ArrayList<String>();
-            }
-            else {
-                receivers = Arrays.asList(receiversStr.split(","));
-            }
             Session mailSession = null;
-            if(!receivers.isEmpty()) {
-                Properties mailProps = new Properties();
-                mailProps.put("mail.smtp.host", prop.getProperty("com.trendmicro.tme.portal.collector.alert.smtp", "localhost"));
-                mailProps.put("mail.from", prop.getProperty("com.trendmicro.tme.portal.collector.alert.from", "tme-noreply@localdomain"));
-                mailSession = Session.getInstance(mailProps, null);
+            ZNode mailReceiverNode = new ZNode("/global/mail_alert");
+            List<String> receivers = new ArrayList<String>();
+            if(mailReceiverNode.exists()) {
+                String receiversStr = mailReceiverNode.getContentString().trim();
+                if(!receiversStr.isEmpty()) {
+                    receivers = Arrays.asList(receiversStr.split(";"));
+                    logger.info("sending e-mail alert to {}", receivers);
+                }
+                if(!receivers.isEmpty()) {
+                    Properties mailProps = new Properties();
+                    mailProps.put("mail.smtp.host", new ZNode("/global/mail_smtp").getContentString());
+                    mailProps.put("mail.from", new ZNode("/global/mail_sender").getContentString());
+                    mailSession = Session.getInstance(mailProps, null);
+                }
             }
             ExchangeMetricWriter writer = new ExchangeMetricWriter(receivers, Integer.valueOf(prop.getProperty("com.trendmicro.tme.portal.collector.alert.interval", "60")), mailSession);
             writer.addSetting("templateFile", prop.getProperty("com.trendmicro.tme.portal.collector.template"));

@@ -254,15 +254,18 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
         if(System.currentTimeMillis() - lastAlertTs.get(exchangeName) > alertIntervalSec * 1000) {
             lastAlertTs.put(exchangeName, System.currentTimeMillis());
             String subject = String.format("[Alert] Exchange %s has not been consumed", exchangeName);
+            logger.warn(subject);
+
+            if(mailSession == null) {
+                return;
+            }
+
             StringBuilder msgBuilder = new StringBuilder();
             msgBuilder.append(String.format("[Alert] Exchange %s has not been consumed:\n\n", exchangeName));
             msgBuilder.append(String.format("Pending: %s / %s\n", metric.getMetrics().get("Pending"), metric.getMetrics().get("Max Pending")));
             msgBuilder.append(String.format("Pending for ACK: %s\n", metric.getMetrics().get("Pending ACK")));
             msgBuilder.append(String.format("Pending Size: %s / %s\n", metric.getMetrics().get("Pending Size"), metric.getMetrics().get("Max Pending Size")));
             msgBuilder.append(String.format("Consumer: %s, Producer: %s", metric.getMetrics().get("Consumers"), metric.getMetrics().get("Producers")));
-
-            String msg = msgBuilder.toString();
-            logger.warn(subject);
 
             for(String receiver : alertReceivers) {
                 try {
@@ -271,7 +274,7 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
                     mail.setRecipients(Message.RecipientType.TO, receiver);
                     mail.setSubject(subject);
                     mail.setSentDate(new Date());
-                    mail.setText(msg);
+                    mail.setText(msgBuilder.toString());
                     Transport.send(mail);
                 }
                 catch(Exception e) {
