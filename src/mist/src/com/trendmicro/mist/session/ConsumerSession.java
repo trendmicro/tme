@@ -88,6 +88,7 @@ public class ConsumerSession extends Session implements MessageListener {
             return;
         isReady = true;
         attached = true;
+        unack = false;
         
         for(Client c : allClients.values()) {
             try {
@@ -118,6 +119,7 @@ public class ConsumerSession extends Session implements MessageListener {
                 break;
             Utils.justSleep(500);
         }
+        unack = false;
         try {
             socketInput.close();
         }
