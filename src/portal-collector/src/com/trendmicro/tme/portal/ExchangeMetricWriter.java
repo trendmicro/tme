@@ -25,6 +25,7 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.google.protobuf.TextFormat;
 import com.googlecode.jmxtrans.model.Query;
 import com.googlecode.jmxtrans.model.Result;
 import com.googlecode.jmxtrans.model.output.RRDToolWriter;
@@ -33,6 +34,9 @@ import com.googlecode.jmxtrans.util.LifecycleException;
 import com.googlecode.jmxtrans.util.ValidationException;
 import com.sun.messaging.AdminConnectionConfiguration;
 import com.sun.messaging.AdminConnectionFactory;
+import com.trendmicro.codi.CachedZNode;
+import com.trendmicro.codi.ZNode;
+import com.trendmicro.mist.proto.ZooKeeperInfo;
 
 public class ExchangeMetricWriter extends BaseOutputWriter {
     static class Record {
@@ -140,9 +144,10 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
     private HashMap<String, Long> lastAlertTs = new HashMap<String, Long>();
 
     private Map<String, RRDToolWriter> writerMap = new HashMap<String, RRDToolWriter>();
-    private List<String> alertReceivers;
     private int alertIntervalSec;
-    private Session mailSession;
+    private CachedZNode smtpNode;
+    private CachedZNode fromNode;
+    private CachedZNode receiverNode;
 
     static {
         try {
@@ -154,10 +159,11 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
         }
     }
 
-    public ExchangeMetricWriter(List<String> alertReceivers, int alertIntervalSec, Session mailSession) {
-        this.alertReceivers = alertReceivers;
+    public ExchangeMetricWriter(int alertIntervalSec) {
         this.alertIntervalSec = alertIntervalSec;
-        this.mailSession = mailSession;
+        smtpNode = new CachedZNode("/global/mail_smtp", 5000);
+        fromNode = new CachedZNode("/global/mail_sender", 5000);
+        receiverNode = new CachedZNode("/global/mail_alert", 5000);
     }
 
     private RRDToolWriter getWriter(String broker, String exchangeName, boolean isQueue) throws LifecycleException {
@@ -256,19 +262,38 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
             String subject = String.format("[Alert] Exchange %s has not been consumed", exchangeName);
             logger.warn(subject);
 
-            if(mailSession == null) {
-                return;
-            }
+            try {
+                if(!smtpNode.exists()) {
+                    return;
+                }
 
-            StringBuilder msgBuilder = new StringBuilder();
-            msgBuilder.append(String.format("[Alert] Exchange %s has not been consumed:\n\n", exchangeName));
-            msgBuilder.append(String.format("Pending: %s / %s\n", metric.getMetrics().get("Pending"), metric.getMetrics().get("Max Pending")));
-            msgBuilder.append(String.format("Pending for ACK: %s\n", metric.getMetrics().get("Pending ACK")));
-            msgBuilder.append(String.format("Pending Size: %s / %s\n", metric.getMetrics().get("Pending Size"), metric.getMetrics().get("Max Pending Size")));
-            msgBuilder.append(String.format("Consumer: %s, Producer: %s", metric.getMetrics().get("Consumers"), metric.getMetrics().get("Producers")));
+                String receiverStr = receiverNode.getContentString();
+                ZNode limitNode = new ZNode("/global/alert_limit_exchange/" + exchangeName);
+                if(limitNode.exists()) {
+                    ZooKeeperInfo.AlertConfig.Builder alertBuilder = ZooKeeperInfo.AlertConfig.newBuilder();
+                    TextFormat.merge(limitNode.getContentString(), alertBuilder);
+                    ZooKeeperInfo.AlertConfig alertConfig = alertBuilder.build();
 
-            for(String receiver : alertReceivers) {
-                try {
+                    if(!(Long.valueOf(metric.getMetrics().get("Pending")) > Long.valueOf(alertConfig.getCount()))) {
+                        return;
+                    }
+                    if(!alertConfig.getReceiver().isEmpty()) {
+                        receiverStr = alertConfig.getReceiver();
+                    }
+                }
+                Properties mailProps = new Properties();
+                mailProps.put("mail.smtp.host", smtpNode.getContentString());
+                mailProps.put("mail.from", fromNode.getContentString());
+                Session mailSession = Session.getInstance(mailProps, null);
+
+                StringBuilder msgBuilder = new StringBuilder();
+                msgBuilder.append(String.format("[Alert] Exchange %s has not been consumed:\n\n", exchangeName));
+                msgBuilder.append(String.format("Pending: %s / %s\n", metric.getMetrics().get("Pending"), metric.getMetrics().get("Max Pending")));
+                msgBuilder.append(String.format("Pending for ACK: %s\n", metric.getMetrics().get("Pending ACK")));
+                msgBuilder.append(String.format("Pending Size: %s / %s\n", metric.getMetrics().get("Pending Size"), metric.getMetrics().get("Max Pending Size")));
+                msgBuilder.append(String.format("Consumer: %s, Producer: %s", metric.getMetrics().get("Consumers"), metric.getMetrics().get("Producers")));
+
+                for(String receiver : receiverStr.split(";")) {
                     MimeMessage mail = new MimeMessage(mailSession);
                     mail.setFrom();
                     mail.setRecipients(Message.RecipientType.TO, receiver);
@@ -277,9 +302,10 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
                     mail.setText(msgBuilder.toString());
                     Transport.send(mail);
                 }
-                catch(Exception e) {
-                    logger.error("unable to send alert mail: {}", e.getMessage(), e);
-                }
+            }
+            catch(Exception e) {
+                logger.error(e.getMessage(), e);
+                return;
             }
         }
     }

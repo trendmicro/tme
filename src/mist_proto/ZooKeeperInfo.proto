@@ -81,3 +81,9 @@ message TotalLimit {
 	required int64 sizeBytes = 1;
 	required int64 count = 2;
 }
+
+message AlertConfig {
+	required int64 count = 1;
+	optional string receiver = 2;
+}
+

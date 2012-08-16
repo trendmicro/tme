@@ -17,7 +17,7 @@ License: Trend Micro Inc.
 Group: System Environment/Daemons
 Source: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
-Requires: jdk, tme-common >= 2.5-20120802Z, rrdtool, monit
+Requires: jdk, tme-common >= 2.5-20120816Z, rrdtool, monit
 Requires(post): /sbin/chkconfig, /sbin/service
 Requires(preun): /sbin/chkconfig, /sbin/service
 

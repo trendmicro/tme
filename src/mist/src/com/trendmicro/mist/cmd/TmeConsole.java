@@ -1049,6 +1049,16 @@ public class TmeConsole {
                     tab.addCell(String.format("%d bytes / %d messages", limit.getSizeBytes(), limit.getCount()));
                 }
 
+                List<String> alert_limit_ex = new ZNode(ZNODE_ALERT_LIMIT).getChildren();
+                for(String name : alert_limit_ex) {
+                    ZooKeeperInfo.AlertConfig.Builder alert_limit_builder = ZooKeeperInfo.AlertConfig.newBuilder();
+                    TextFormat.merge(new ZNode(ZNODE_ALERT_LIMIT + "/" + name).getContentString(), alert_limit_builder);
+                    ZooKeeperInfo.AlertConfig alertConfig = alert_limit_builder.build();
+                    tab.addCell(name);
+                    tab.addCell("Alert limit", new CellStyle(HorizontalAlign.center));
+                    tab.addCell(String.format("%d messages to %s", alertConfig.getCount(), alertConfig.getReceiver()));
+                }
+
                 myConsole.logResponse("%d configured exchanges%n", fixed_ex.size() + drop_ex.size() + limit_ex.size());
                 if(fixed_ex.size() + drop_ex.size() + limit_ex.size() > 0)
                     myConsole.logResponseNL(tab.render());
@@ -1165,11 +1175,36 @@ public class TmeConsole {
             BrokerSpy.setExchangeTotalLimit(ex, 10485760L, 100000);
         }
 
+        private void alertLimit(String limitStr) {
+            if(!limitStr.matches(".*:\\d+:.*")) {
+                help();
+                return;
+            }
+            String strArray[] = limitStr.split(":");
+            Exchange ex = new Exchange(strArray[0]);
+            long count = Long.valueOf(strArray[1]);
+            String receiver = strArray.length == 3 ? strArray[2]: "";
+
+            String path = ZNODE_ALERT_LIMIT + "/" + ex.getName();
+            if(count <= 0) {
+                deleteNode(path);
+            }
+            else {
+                ZooKeeperInfo.AlertConfig.Builder alertConfigBuilder = ZooKeeperInfo.AlertConfig.newBuilder();
+                alertConfigBuilder.setCount(count);
+                if(!receiver.isEmpty()) {
+                    alertConfigBuilder.setReceiver(receiver);
+                }
+                createAndSetNode(path, alertConfigBuilder.build().toString().getBytes());
+            }
+        }
+
         ////////////////////////////////////////////////////////////////////////////////
 
         public static final String ZNODE_FIXED = "/global/fixed_exchange";
         public static final String ZNODE_DROP = "/global/drop_exchange";
         public static final String ZNODE_LIMIT = "/global/limit_exchange";
+        public static final String ZNODE_ALERT_LIMIT = "/global/alert_limit_exchange";
 
         public ExchangeCommand() {
             Option optHelp = new Option("h", "help", false, "display help message");
@@ -1189,6 +1224,8 @@ public class TmeConsole {
             optLimit.setArgName("limit");
             Option optDefaultLimit = new Option("D", "default-limit", true, "change the size and count limit of a exchange back to default (10M/100000)");
             optDefaultLimit.setArgName("exchange");
+            Option optAlertLimit = new Option("a", "alert-limit", true, "change the limit that triggers the alert when the exchange is not consumed, set to 0 will alert when there is any pending message, receiver is seperated by ; and overrides the default mail receiver");
+            optAlertLimit.setArgName("alert-limit");
 
             opts.addOption(optList);
             opts.addOption(optMigrate);
@@ -1199,6 +1236,7 @@ public class TmeConsole {
             opts.addOption(optBlock);
             opts.addOption(optLimit);
             opts.addOption(optDefaultLimit);
+            opts.addOption(optAlertLimit);
         }
 
         public void execute(String [] argv) {
@@ -1220,6 +1258,8 @@ public class TmeConsole {
                     limit(line.getOptionValue("limit"));
                 else if(line.hasOption("default-limit"))
                     defLimit(line.getOptionValue("default-limit"));
+                else if(line.hasOption("alert-limit"))
+                    alertLimit(line.getOptionValue("alert-limit"));
                 else
                     help();
             }
@@ -1236,6 +1276,7 @@ public class TmeConsole {
             myConsole.logResponseNL(" `exchange' = {queue|topic}:EXCHANGENAME");
             myConsole.logResponseNL(" `policy' = EXCHANGENAME:[newest|oldest]");
             myConsole.logResponseNL(" `limit' = EXCHANGENAME:size:count");
+            myConsole.logResponseNL(" `alert-limit' = EXCHANGENAME:count:receiver");
         }
 
         public String explain() {

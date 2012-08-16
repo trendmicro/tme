@@ -140,24 +140,7 @@ public class ExchangeMetricCollector {
             if(!ZKSessionManager.instance().waitConnected(zkTimeout)) {
                 throw new Exception("Cannot connect to ZooKeeper Quorom " + zkQuorum);
             }
-
-            Session mailSession = null;
-            ZNode mailReceiverNode = new ZNode("/global/mail_alert");
-            List<String> receivers = new ArrayList<String>();
-            if(mailReceiverNode.exists()) {
-                String receiversStr = mailReceiverNode.getContentString().trim();
-                if(!receiversStr.isEmpty()) {
-                    receivers = Arrays.asList(receiversStr.split(";"));
-                    logger.info("sending e-mail alert to {}", receivers);
-                }
-                if(!receivers.isEmpty()) {
-                    Properties mailProps = new Properties();
-                    mailProps.put("mail.smtp.host", new ZNode("/global/mail_smtp").getContentString());
-                    mailProps.put("mail.from", new ZNode("/global/mail_sender").getContentString());
-                    mailSession = Session.getInstance(mailProps, null);
-                }
-            }
-            ExchangeMetricWriter writer = new ExchangeMetricWriter(receivers, Integer.valueOf(prop.getProperty("com.trendmicro.tme.portal.collector.alert.interval", "60")), mailSession);
+            ExchangeMetricWriter writer = new ExchangeMetricWriter(Integer.valueOf(prop.getProperty("com.trendmicro.tme.portal.collector.alert.interval", "60")));
             writer.addSetting("templateFile", prop.getProperty("com.trendmicro.tme.portal.collector.template"));
             writer.addSetting("outputPath", prop.getProperty("com.trendmicro.tme.portal.collector.outputdir"));
             ExchangeMetricArchiver archiver = new ExchangeMetricArchiver((String) prop.getProperty("com.trendmicro.tme.portal.collector.outputdir"), (String) prop.getProperty("com.trendmicro.tme.portal.collector.archiver.maxrecords"), Integer.valueOf((String) prop.getProperty("com.trendmicro.tme.portal.collector.archiver.interval")));
