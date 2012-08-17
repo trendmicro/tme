@@ -86,6 +86,7 @@ public class ConsumerSession extends Session implements MessageListener {
     public void run() {
         if(!acceptConnection())
             return;
+        open(false);
         isReady = true;
         attached = true;
         unack = false;

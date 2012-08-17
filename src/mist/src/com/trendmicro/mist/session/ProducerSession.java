@@ -217,12 +217,12 @@ public class ProducerSession extends Session {
     }
 
     private void sendLoop() {
-        Thread.currentThread().setName("Session-" + sessionId);
         lastRouteUpdate = -1;
         routeCacheMap.clear();
         // Accept the incoming connection and setup socket IO streams
         if(!acceptConnection())
             return;
+        open(false);
         retryDeliver = true;
         isReady = true;
 

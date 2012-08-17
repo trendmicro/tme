@@ -35,6 +35,7 @@ public abstract class Session implements Runnable {
     protected GateTalk.Session sessionConfig;
     protected boolean isReady = false;
     protected Thread sessionThread = null;
+    private Object attachLock = new Object();
 
     /**
      * Helper function to accept an incoming connection from the client. The
@@ -50,7 +51,7 @@ public abstract class Session implements Runnable {
         socketInput = null;
         socketOutput = null;
         try {
-            for(;;) {
+            for(int i = 0; i < 60; i++) {
                 try {
                     socket = localServer.accept();
                     localServer.close();
@@ -63,6 +64,9 @@ public abstract class Session implements Runnable {
                         return false;
                     }
                 }
+            }
+            if(socket == null) {
+                throw new IOException("cannot accept client connection (timed out)");
             }
             socket.setTcpNoDelay(true);
             socketInput = new BufferedInputStream(socket.getInputStream());
@@ -164,6 +168,7 @@ public abstract class Session implements Runnable {
         new Thread() {
             @Override
             public void run() {
+                setName(sessionId + "-closer");
                 for(Client c : allClients.values()) {
                     c.closeClient(isPause, false);
                 }
@@ -190,7 +195,7 @@ public abstract class Session implements Runnable {
             }
         }
 
-        synchronized(this) {
+        synchronized(attachLock) {
             if(isAttached())
                 throw new MistException(MistException.ALREADY_ATTACHED);
             
@@ -211,9 +216,9 @@ public abstract class Session implements Runnable {
             }
             detachNow = false;
             isReady = false;
-            open(false);
-            
+
             sessionThread = new Thread(this);
+            sessionThread.setName("Session-" + sessionId);
             sessionThread.start();
         }
     }
@@ -223,14 +228,16 @@ public abstract class Session implements Runnable {
     public void detach(GateTalk.Request.Role role) throws MistException {
         checkRole(role);
 
-        detachNow = true;
-        detach();
-        close(false);
-        cleanupSockets();
-        try {
-            sessionThread.join();
-        }
-        catch(Exception e) {
+        synchronized(attachLock) {
+            detachNow = true;
+            detach();
+            close(false);
+            cleanupSockets();
+            try {
+                sessionThread.join();
+            }
+            catch(Exception e) {
+            }
         }
     }
 
