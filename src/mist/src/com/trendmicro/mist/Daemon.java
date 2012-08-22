@@ -11,6 +11,7 @@ import java.io.StringWriter;
 import java.net.ServerSocket;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
@@ -68,8 +69,18 @@ public class Daemon {
                 }
             }
         }
-        for(Connection conn : connectionPool)
-            conn.close();
+        for(int i = 0; i < 20; i++) {
+            synchronized(closingThreadSet) {
+                if(closingThreadSet.isEmpty()) {
+                    break;
+                }
+            }
+            try {
+                Thread.sleep(1000);
+            }
+            catch(InterruptedException e) {
+            }
+        }
         logger.info("MISTd shutdown");
     }
 
@@ -142,6 +153,7 @@ public class Daemon {
     public static List<Connection> connectionPool = Collections.synchronizedList(new ArrayList<Connection>());
     public static ArrayList<Thread> deadServiceList = new ArrayList<Thread>();
     public static LinkedList<MessageFilter> messageFilters = new LinkedList<MessageFilter>();
+    public static HashSet<Thread> closingThreadSet = new HashSet<Thread>();
 
     static {
         nameTempDir = "/var/run/tme";

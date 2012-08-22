@@ -13,6 +13,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.trendmicro.mist.Client;
+import com.trendmicro.mist.Daemon;
 import com.trendmicro.mist.MistException;
 import com.trendmicro.mist.proto.GateTalk;
 import com.trendmicro.mist.util.Exchange;
@@ -165,7 +166,7 @@ public abstract class Session implements Runnable {
     public void close(final boolean isPause) {
         // A consumer thread is not allowed to close jms session, so fork a
         // thread here to close them
-        new Thread() {
+        Thread closingThread = new Thread() {
             @Override
             public void run() {
                 setName(sessionId + "-closer");
@@ -173,8 +174,15 @@ public abstract class Session implements Runnable {
                     c.closeClient(isPause, false);
                 }
                 detachNow = false;
+                synchronized(Daemon.closingThreadSet) {
+                    Daemon.closingThreadSet.remove(this);
+                }
             }
-        }.start();
+        };
+        closingThread.start();
+        synchronized(Daemon.closingThreadSet) {
+            Daemon.closingThreadSet.add(closingThread);
+        }
     }
 
     /**
