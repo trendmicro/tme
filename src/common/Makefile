@@ -53,7 +53,7 @@ install: default
 	cp -f bin/create_zookeeper_nodes.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	cp -f conf/common/common-env.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)/common
 	cp -f lib/MIST-proto.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
-	cp -f lib/codi-1.0-812.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
+	cp -f lib/codi-1.0-814.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
 	cp -f lib/commons-cli-1.2.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
 	cp -f lib/commons-codec-1.3.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
 	cp -f lib/commons-io-1.4.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
