@@ -565,7 +565,6 @@ public class ExchangeFarm extends Thread implements DataListener {
             host = ex.getHost();
         }
         catch(Exception e) {
-            logger.error(e.getMessage(), e);
         }
         return host;
     }

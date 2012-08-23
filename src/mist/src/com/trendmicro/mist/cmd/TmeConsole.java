@@ -1130,10 +1130,14 @@ public class TmeConsole {
             ZooKeeperInfo.DropConfig dropConfig = ZooKeeperInfo.DropConfig.newBuilder().setPolicy(strArray[1].compareTo("newest") == 0 ? DropConfig.Policy.NEWEST: DropConfig.Policy.OLDEST).build();
             createAndSetNode(path, dropConfig.toString().getBytes());
             
-            if(dropConfig.getPolicy().equals(ZooKeeperInfo.DropConfig.Policy.NEWEST))
-                BrokerSpy.setExchangeFlowControl(ex, ExchangeFarm.FlowControlBehavior.DROP_NEWEST);
-            else
-                BrokerSpy.setExchangeFlowControl(ex, ExchangeFarm.FlowControlBehavior.DROP_OLDEST);
+            try {
+                if(dropConfig.getPolicy().equals(ZooKeeperInfo.DropConfig.Policy.NEWEST))
+                    BrokerSpy.setExchangeFlowControl(ex, ExchangeFarm.FlowControlBehavior.DROP_NEWEST);
+                else
+                    BrokerSpy.setExchangeFlowControl(ex, ExchangeFarm.FlowControlBehavior.DROP_OLDEST);
+            }
+            catch(Exception e) {
+            }
         }
 
         private void block(String exchange) {
@@ -1143,8 +1147,11 @@ public class TmeConsole {
                 System.out.printf(String.format("drop policy on `%s' removed%n", ex.getName()));
             else
                 System.out.printf(String.format("`%s' not found%n", ex.getName()));
-            
-            BrokerSpy.setExchangeFlowControl(ex, ExchangeFarm.FlowControlBehavior.BLOCK);
+            try {
+                BrokerSpy.setExchangeFlowControl(ex, ExchangeFarm.FlowControlBehavior.BLOCK);
+            }
+            catch(Exception e) {
+            }
         }
         
         private void limit(String limitStr) {
@@ -1161,7 +1168,11 @@ public class TmeConsole {
             String path = ZNODE_LIMIT + "/" + ex.getName();
             createAndSetNode(path, limitConfig.toString().getBytes());
 
-            BrokerSpy.setExchangeTotalLimit(ex, size, count);
+            try {
+                BrokerSpy.setExchangeTotalLimit(ex, size, count);
+            }
+            catch(Exception e) {
+            }
         }
 
         private void defLimit(String exchange) {
@@ -1172,7 +1183,11 @@ public class TmeConsole {
             else
                 System.out.printf(String.format("`%s' not found%n", ex.getName()));
 
-            BrokerSpy.setExchangeTotalLimit(ex, 10485760L, 100000);
+            try {
+                BrokerSpy.setExchangeTotalLimit(ex, 10485760L, 100000);
+            }
+            catch(Exception e) {
+            }
         }
 
         private void alertLimit(String limitStr) {

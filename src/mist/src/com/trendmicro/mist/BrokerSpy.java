@@ -228,7 +228,7 @@ public class BrokerSpy {
         return result;
     }
     
-    public static void setExchangeFlowControl(Exchange exchange, FlowControlBehavior policy) {
+    public static void setExchangeFlowControl(Exchange exchange, FlowControlBehavior policy) throws Exception {
         BrokerSpy spy = null;
         try {
             String broker = ExchangeFarm.getCurrentExchangeHost(exchange);
@@ -249,9 +249,6 @@ public class BrokerSpy {
                 break;
             }
         }
-        catch(Exception e) {
-            logger.error(e.getMessage(), e);
-        }
         finally {
             try {
                 spy.jmxCloseServer();
@@ -261,7 +258,7 @@ public class BrokerSpy {
         }
     }
     
-    public static void setExchangeTotalLimit(Exchange exchange, long sizeBytes, long count) {
+    public static void setExchangeTotalLimit(Exchange exchange, long sizeBytes, long count) throws Exception {
         BrokerSpy spy = null;
         try {
             String broker = ExchangeFarm.getCurrentExchangeHost(exchange);
@@ -272,9 +269,6 @@ public class BrokerSpy {
 
             spy.setExchangeAttrib(exchange, "MaxTotalMsgBytes", sizeBytes);
             spy.setExchangeAttrib(exchange, "MaxNumMsgs", count);
-        }
-        catch(Exception e) {
-            logger.error(e.getMessage(), e);
         }
         finally {
             try {
