@@ -12,7 +12,10 @@ do
     archive=`echo $json | sed -e 's/\.json$/\.archive/g'`
     cat $json >> $archive
     echo "," >> $archive
-    tail -n $2 $archive > $archive.tmp
-    mv -f $archive.tmp $archive
+    if [ $((`wc -l $archive | cut -d ' ' -f 1` - $2)) -gt 100 ]
+    then
+	tail -n $2 $archive > $archive.tmp
+	mv -f $archive.tmp $archive
+    fi
 done
 
