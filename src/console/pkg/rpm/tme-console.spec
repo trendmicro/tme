@@ -7,23 +7,21 @@
     /usr/lib/rpm/brp-python-bytecompile \
 %{nil}
 
-%define name tme-mist
+%define name tme-console
 
-Summary: TME MIST Daemon
+Summary: TME Console
 Name: %{name}
 Version: %{version}
 Release: %{release}
 License: Trend Micro Inc.
-Group: System Environment/Daemons
+Group: System Environment/Tools
 Source: %{name}-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
-Requires: jdk, tme-common >= 2.5-20120816Z, monit, tme-mist-tools
-Requires(post): /sbin/chkconfig, /sbin/service
-Requires(preun): /sbin/chkconfig, /sbin/service
+Requires: jdk, tme-mist >= 2.5-20120828Z
 
 %description
 
-TME MIST Daemon
+TME Console
 
 %prep
 
@@ -43,61 +41,51 @@ cp -rf * $RPM_BUILD_ROOT/
 rm -rf $RPM_BUILD_ROOT
 
 %files
-/etc/init.d/tme-mistd
-/usr/bin/mist-line-gen
-
+/usr/bin/tme-console
 %dir 
-/opt/trend/tme/bin
 /opt/trend/tme/lib
 
-%config /opt/trend/tme/conf/mist/mistd.properties
-%config /opt/trend/tme/conf/mist/tme-mistd.monit
-%config /opt/trend/tme/conf/mist/logback.xml
+%config /opt/trend/tme/conf/console/ldaploginmodule.conf 
 
 %pre
 
-if [ "`getent passwd TME`" == "" ]; then
-	echo "Error: must create user TME first!"
-	exit 1
-fi
-
 if [ "$1" = "1" ]; then
     # install
-	usleep 1
+    true
 elif [ "$1" = "2" ]; then
     # upgrade
-	usleep 1
+    true
 fi
 
 %post
 
+
 if [ "$1" = "1" ]; then
     # install
-    usleep 1
+    true
 elif [ "$1" = "2" ]; then
     # upgrade
-    usleep 1
+    true
 fi
 
 %preun
-/opt/trend/tme/bin/remove_tme-mistd.sh
 
 if [ "$1" = "1" ]; then
     # upgrade
-    usleep 1
+    true
 elif [ "$1" = "0" ]; then
     # uninstall
-    usleep 1
+    true
 fi
 
 %postun
 
 if [ "$1" = "1" ]; then
     # upgrade
-    usleep 1
+    true
 elif [ "$1" = "0" ]; then
     # uninstall
-    usleep 1
+    true
 fi
 
 %changelog

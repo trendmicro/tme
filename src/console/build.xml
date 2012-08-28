@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<project basedir="." default="build" name="console">
+    <property environment="env"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.6"/>
+    <property name="source" value="1.6"/>
+    <path id="console.classpath">
+        <fileset dir="../common/lib">
+            <include name="**/*.jar" />
+        </fileset>
+        <fileset dir="../common/build">
+            <include name="tme-common.jar" />
+        </fileset>
+        <fileset dir="../mist/lib">
+            <include name="**/*.jar" />
+        </fileset>
+        <fileset dir="../mist/build">
+            <include name="MIST.jar" />
+        </fileset>
+    </path>
+
+    <target name="init">
+        <mkdir dir="build/class"/>
+        <copy includeemptydirs="false" todir="build/class">
+            <fileset dir="src">
+                <exclude name="**/*.launch"/>
+                <exclude name="**/*.java"/>
+            </fileset>
+        </copy>
+		<ant antfile="../common/build.xml" target="build" dir="../common/" inheritAll="false"/>
+		<ant antfile="../mist/build.xml" target="mist" dir="../mist/" inheritAll="false"/>
+    </target>
+
+    <target name="clean">
+        <delete dir="build"/>
+        <delete dir="../common/build"/>
+    </target>
+
+    <target depends="init" name="build">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="build/class" source="${source}" target="${target}" includeantruntime="false">
+            <src path="src"/>
+            <classpath refid="console.classpath"/>
+        </javac>
+		<jar destfile="build/tme-console.jar" basedir="build/class"/>
+	</target>
+</project>

@@ -1,0 +1,7 @@
+#!/bin/bash
+
+mkdir -p /etc/monit.d
+
+mkdir -p /var/lib/tme/portal-collector
+chown TME:TME /var/lib/tme/portal-collector
+

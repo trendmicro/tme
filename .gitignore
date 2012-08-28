@@ -43,3 +43,4 @@ src/portal-collector/build/
 src/portal-web/src/.bundle/
 src/portal-web/src/lib/ruby/
 
+src/console/build/

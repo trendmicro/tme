@@ -4,7 +4,7 @@
 # convention.
 # ----------------------------------------------------------------------------
 
-TOP_DIR        ?= $(abspath ../..)
+TOP_DIR	?= $(abspath ../..)
 TOP_OUTPUT_DIR ?= $(TOP_DIR)/output
 ARTIFACTS_DIR  ?= $(TOP_OUTPUT_DIR)/artifacts
 RPMBUILD_DIR   ?= $(TOP_OUTPUT_DIR)/rpmbuild
@@ -14,8 +14,8 @@ RPMBUILD_DIR   ?= $(TOP_OUTPUT_DIR)/rpmbuild
 # Module specific variables
 # ----------------------------------------------------------------------------
 
-CODE        = tme-mist
-NAME        = tme-mist
+CODE	= tme-console
+NAME	= tme-console
 VERSION     = 2.5
 PKGNAME     = ${NAME}-${VERSION}
 
@@ -31,7 +31,7 @@ SHELL       = /bin/bash
 
 SRCDIR      = src
 
-DATE_TAG        = $(shell date -u "+%Y%m%dZ")
+DATE_TAG	= $(shell date -u "+%Y%m%dZ")
 
 DEBBUILD_DIR   := $(TOP_OUTPUT_DIR)/deb/$(PKGNAME)-$(DATE_TAG)_all
 
@@ -41,24 +41,15 @@ DEBBUILD_DIR   := $(TOP_OUTPUT_DIR)/deb/$(PKGNAME)-$(DATE_TAG)_all
 
 .PHONY: default
 default: 
-	@ant -DVERSION=$(VERSION) -DDATE_TAG=$(DATE_TAG)
+	@ant
 
 .PHONY: install
 install: default
-	mkdir -p $(BUILD_PREFIX)/etc/init.d
 	mkdir -p $(BUILD_PREFIX)/usr/bin
-	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)
-	cp -f bin/tme-mistd $(BUILD_PREFIX)/etc/init.d
-	cp -f bin/mist-line-gen $(BUILD_PREFIX)/usr/bin
-	cp -f bin/mistd.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
-	cp -f bin/install_tme-mistd.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
-	cp -f bin/remove_tme-mistd.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
+	cp -f bin/tme-console $(BUILD_PREFIX)/usr/bin
 	cp -f $(BUILDPATH)/*.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
-	cp -f lib/jline-0.9.94.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
-	cp -f lib/org.apache.servicemix.bundles.jcip-annotations-1.0_1.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
-	cp -f lib/text-table-formatter-1.0.jar $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
 	cp -rf conf/* $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)
 
 .PHONY: deb
@@ -73,6 +64,7 @@ deb:
 	dpkg-deb --build $(DEBBUILD_DIR)
 	mkdir -p $(ARTIFACTS_DIR);
 	cp -f $(DEBBUILD_DIR)/../*.deb $(ARTIFACTS_DIR)
+
 
 .PHONY: rebuild
 rebuild: clean default
@@ -90,7 +82,7 @@ rpm: default
 	mv $(BUILDPATH)/$(PKGNAME).tar.gz $(RPMBUILD_DIR)/SOURCES
 	rm -rf $(RPMPATH) 
 	# Create SPEC file with changelog, and build RPM files.
-	rpmbuild --target noarch --define "version $(VERSION)" --define "release $(DATE_TAG)" --define="_topdir $(RPMBUILD_DIR)" -bb pkg/rpm/tme-mist.spec
+	rpmbuild --target noarch --define "version $(VERSION)" --define "release $(DATE_TAG)" --define="_topdir $(RPMBUILD_DIR)" -bb pkg/rpm/tme-console.spec
 	# Copy RPM files to artifacts directory
 	mkdir -p $(ARTIFACTS_DIR);
 	cp -f $(RPMBUILD_DIR)/RPMS/*/$(NAME)-*.rpm $(ARTIFACTS_DIR)/;

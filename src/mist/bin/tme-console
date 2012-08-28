@@ -1,6 +1,0 @@
-#!/bin/bash
-
-source /opt/trend/tme/conf/common/common-env.sh
-
-$JAVA_CMD -cp '/opt/trend/tme/lib/*' -Djava.security.auth.login.config=/opt/trend/tme/conf/mist/ldaploginmodule.conf com.trendmicro.mist.cmd.TmeConsole $*
-exit $?
