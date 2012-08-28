@@ -33,9 +33,9 @@ public class ExchangeMetricCollector {
     private ExchangeMetricWriter writer;
     private ExchangeMetricArchiver archiver;
 
-    private Query createQuery() {
+    private Query createMonitorQuery() {
         Query query = new Query();
-        query.setObj("com.sun.messaging.jms.server:type=Destination,subtype=*,desttype=*,name=*");
+        query.setObj("com.sun.messaging.jms.server:type=Destination,subtype=Monitor,desttype=*,name=*");
         query.addAttr("NumMsgs");
         query.addAttr("NumMsgsIn");
         query.addAttr("NumMsgsOut");
@@ -45,6 +45,13 @@ public class ExchangeMetricCollector {
         query.addAttr("MsgBytesIn");
         query.addAttr("MsgBytesOut");
         query.addAttr("TotalMsgBytes");
+        query.addOutputWriter(writer);
+        return query;
+    }
+
+    private Query createConfigQuery() {
+        Query query = new Query();
+        query.setObj("com.sun.messaging.jms.server:type=Destination,subtype=Config,desttype=*,name=*");
         query.addAttr("MaxNumMsgs");
         query.addAttr("MaxTotalMsgBytes");
         query.addAttr("LimitBehavior");
@@ -105,7 +112,8 @@ public class ExchangeMetricCollector {
                     server.setUrl(jmxurl);
 
                     try {
-                        server.addQuery(createQuery());
+                        server.addQuery(createMonitorQuery());
+                        server.addQuery(createConfigQuery());
                     }
                     catch(ValidationException e) {
                         e.printStackTrace();
