@@ -6,7 +6,6 @@ import java.nio.channels.FileChannel;
 import java.nio.channels.FileLock;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 import java.util.regex.Matcher;
@@ -36,6 +35,8 @@ import com.sun.messaging.AdminConnectionConfiguration;
 import com.sun.messaging.AdminConnectionFactory;
 import com.trendmicro.codi.CachedZNode;
 import com.trendmicro.codi.ZNode;
+import com.trendmicro.tme.mfr.Exchange;
+import com.trendmicro.tme.mfr.ExchangeFarm;
 import com.trendmicro.mist.proto.ZooKeeperInfo;
 
 public class ExchangeMetricWriter extends BaseOutputWriter {
@@ -148,6 +149,7 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
     private CachedZNode smtpNode;
     private CachedZNode fromNode;
     private CachedZNode receiverNode;
+    private ExchangeFarm exchangeFarm = new ExchangeFarm();
 
     static {
         try {
@@ -323,6 +325,15 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
             return;
         }
         String exchangeName = m.group(1);
+        if(exchangeName.equals("mq.sys.dmq")) {
+            return;
+        }
+
+        String currentBroker = exchangeFarm.getCurrentExchangeHost(new Exchange(exchangeName));
+        if(!q.getServer().getHost().equals(currentBroker)){
+            logger.warn(String.format("current broker of %s is %s instead of %s, ignore", exchangeName, currentBroker, q.getServer().getHost()));
+            return;
+        }
 
         if(configPattern.matcher(q.getResults().get(0).getTypeName()).matches()) {
             storeExchangeConfig(exchangeName, q);
@@ -335,10 +346,6 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
             return;
         }
         boolean isQueue = m.group(1).equals("q");
-
-        if(exchangeName.equals("mq.sys.dmq")) {
-            return;
-        }
 
         RRDToolWriter writer = getWriter(q.getServer().getHost(), exchangeName, isQueue);
         ExchangeMetric metric = new ExchangeMetric(q.getServer().getHost(), isQueue ? "queue": "topic", exchangeName, String.format("%s/%s-%s.rrd", outputPath, isQueue ? "queue": "topic", exchangeName));
