@@ -365,6 +365,9 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
         long numMsgsIn = 0;
         long numMsgsOut = 0;
         long lastConsumed = 0;
+        long lastProduced = 0;
+        long lastConsumedSize = 0;
+        long lastProducedSize = 0;
         Record currentRecord = new Record();
         currentRecord.setTimestamp(timestamp);
         for(Result res : q.getResults()) {
@@ -379,8 +382,10 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
                     res.addValue("NumMsgsIn", "0");
                 }
                 else {
-                    res.addValue("NumMsgsIn", String.valueOf((long) ((float) (numMsgsIn - lastRecord.getMsgIn()) / (timestamp - lastRecord.getTimestamp()) * 1000)));
+                    lastProduced = numMsgsIn - lastRecord.getMsgIn();
+                    res.addValue("NumMsgsIn", String.valueOf((long) ((float) lastProduced / (timestamp - lastRecord.getTimestamp()) * 1000)));
                 }
+                metric.addMetric("Last Enqueue", Long.toString(lastProduced));
                 currentRecord.setMsgIn(numMsgsIn);
             }
             else if(res.getAttributeName().equals("NumMsgsOut")) {
@@ -393,6 +398,7 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
                     lastConsumed = numMsgsOut - lastRecord.getMsgOut();
                     res.addValue("NumMsgsOut", String.valueOf((long) ((float) lastConsumed / (timestamp - lastRecord.getTimestamp()) * 1000)));
                 }
+                metric.addMetric("Last Dequeue", Long.toString(lastConsumed));
                 currentRecord.setMsgOut(numMsgsOut);
             }
             else if(res.getAttributeName().equals("NumMsgsPendingAcks")) {
@@ -411,8 +417,10 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
                     res.addValue("MsgBytesIn", "0");
                 }
                 else {
-                    res.addValue("MsgBytesIn", String.valueOf((long) ((float) (numMsgsInSize - lastRecord.getMsgInSize()) / (timestamp - lastRecord.getTimestamp()) * 1000)));
+                    lastProducedSize = numMsgsInSize - lastRecord.getMsgInSize();
+                    res.addValue("MsgBytesIn", String.valueOf((long) ((float) lastProducedSize / (timestamp - lastRecord.getTimestamp()) * 1000)));
                 }
+                metric.addMetric("Last Enqueue Size", Long.toString(lastProducedSize));
                 currentRecord.setMsgInSize(numMsgsInSize);
             }
             else if(res.getAttributeName().equals("MsgBytesOut")) {
@@ -422,8 +430,10 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
                     res.addValue("MsgBytesOut", "0");
                 }
                 else {
-                    res.addValue("MsgBytesOut", String.valueOf((long) ((float) (numMsgsOutSize - lastRecord.getMsgOutSize()) / (timestamp - lastRecord.getTimestamp()) * 1000)));
+                    lastConsumedSize = numMsgsOutSize - lastRecord.getMsgOutSize();
+                    res.addValue("MsgBytesOut", String.valueOf((long) ((float) lastConsumedSize / (timestamp - lastRecord.getTimestamp()) * 1000)));
                 }
+                metric.addMetric("Last Dequeue Size", Long.toString(lastConsumedSize));
                 currentRecord.setMsgOutSize(numMsgsOutSize);
             }
             else if(res.getAttributeName().equals("TotalMsgBytes")) {
