@@ -451,6 +451,9 @@ public class ExchangeMetricWriter extends BaseOutputWriter {
         if(numMsgs > 0 && lastConsumed == 0) {
             alert(exchangeName, metric);
         }
+        else {
+            lastAlertTs.remove(exchangeName);
+        }
 
         long numMsgsDropped = numMsgsIn - numMsgsOut - numMsgs;
         metric.addMetric("Dropped", String.valueOf(numMsgsDropped));
