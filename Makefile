@@ -31,6 +31,7 @@ SUB_MODULE_DIRS += src/portal-collector
 SUB_MODULE_DIRS += src/graph-editor
 SUB_MODULE_DIRS += src/mist-tools
 SUB_MODULE_DIRS += src/portal-web
+SUB_MODULE_DIRS += src/console
 
 
 # ----------------------------------------------------------------------------
