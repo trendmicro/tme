@@ -57,7 +57,10 @@ int connectTo(int port){
     inet_aton("127.0.0.1",(struct in_addr *)&sa.sin_addr.s_addr);
     sa.sin_port=htons(port);
 
-    if(connect(sock,(struct sockaddr*)&sa,sizeof(sa))<0){
+    socklen_t socklen = sizeof(sa);
+    if((connect(sock,(struct sockaddr*)&sa,sizeof(sa)) < 0) ||
+	(getsockname(sock, (struct sockaddr*)&sa, &socklen) != 0) ||
+	/* prevent connect to self */ (ntohs(sa.sin_port) == MISTD_PORT)){
         close(sock);
         return -1;
     }
