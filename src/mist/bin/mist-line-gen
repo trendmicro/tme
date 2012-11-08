@@ -1,7 +1,0 @@
-#!/bin/sh
-javacmd="/usr/java/latest/bin/java"
-if [ ! -x "$javacmd" ]; then
-    echo "Sun Java Runtime Environment: $javacmd not found"
-    exit 1
-fi
-exec $javacmd -cp '/opt/trend/tme/lib/*' com.trendmicro.mist.cmd.MistLineGen $*

@@ -51,7 +51,6 @@ install: default
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH)
 	mkdir -p $(BUILD_PREFIX)/$(INSTALLPATH)/$(CONFPATH)
 	cp -f bin/tme-mistd $(BUILD_PREFIX)/etc/init.d
-	cp -f bin/mist-line-gen $(BUILD_PREFIX)/usr/bin
 	cp -f bin/mistd.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	cp -f bin/install_tme-mistd.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)
 	cp -f bin/remove_tme-mistd.sh $(BUILD_PREFIX)/$(INSTALLPATH)/$(BINPATH)

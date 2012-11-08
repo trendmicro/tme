@@ -44,7 +44,6 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 /etc/init.d/tme-mistd
-/usr/bin/mist-line-gen
 
 %dir 
 /opt/trend/tme/bin
