@@ -67,6 +67,7 @@ install: default
 	cp -f $(BINPATH)/mist-tools/mist-source $(BUILD_PREFIX)/usr/bin
 	cp -f $(BINPATH)/mist-tools/mist-encode $(BUILD_PREFIX)/usr/bin
 	cp -f $(BINPATH)/mist-tools/mist-decode $(BUILD_PREFIX)/usr/bin
+	cp -f $(BINPATH)/mist-tools/mist-count $(BUILD_PREFIX)/usr/bin
 	cp -f $(WORKS_DIR)/protobuf-2.1.0/src/.libs/libprotobuf.so.4 $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH) || true
 	cp -f $(WORKS_DIR)/protobuf-2.1.0/src/.libs/libprotobuf.4.dylib $(BUILD_PREFIX)/$(INSTALLPATH)/$(LIBPATH) || true
 

@@ -15,6 +15,7 @@ add_executable(mist-decode mist_decode.cpp)
 add_executable(mist-source mist_source.cpp)
 add_executable(mist-sink mist_sink.cpp)
 add_executable(mist-session mist_session.cpp)
+add_executable(mist-count mist_count.cpp)
 
 target_link_libraries(
   mist-encode
@@ -30,4 +31,7 @@ target_link_libraries(
   mist_proto pthread ${PROTOBUF_LIBRARY})
 target_link_libraries(
   mist-session
+  mist_proto pthread ${PROTOBUF_LIBRARY})
+target_link_libraries(
+  mist-count
   mist_proto pthread ${PROTOBUF_LIBRARY})

@@ -270,6 +270,10 @@ class Block_Policy_MessageBlock : public Block_Policy_Length
 			_id = id;
 		}
 
+		const std::string& get_id(){
+			return _id;
+		}
+
 		void set_ttl(const int ttl){
 			_ttl = ttl;
 		}
@@ -281,6 +285,7 @@ class Block_Policy_MessageBlock : public Block_Policy_Length
 				return message_payload(_buf, 0);
 			}
 			else if(_msg.ParseFromArray(raw.buf, raw.len)) {
+				_id = _msg.id();
 				return message_payload(_msg.message().data(), _msg.message().size());
 			}
 			else {

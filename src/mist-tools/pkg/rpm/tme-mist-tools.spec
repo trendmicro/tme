@@ -45,6 +45,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/bin/mist-source
 /usr/bin/mist-decode
 /usr/bin/mist-encode
+/usr/bin/mist-count
 /opt/trend/tme/lib/libprotobuf.so.4
 
 %pre
