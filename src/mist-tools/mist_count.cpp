@@ -23,19 +23,30 @@ void print_and_reset() {
     count_map.clear();
 }
 
-void count_loop() {
-    time_t last_ts = time(NULL);
-    Processor<Block_Policy_MessageBlock, Block_Policy_MessageBlock, Read_Stdin_Policy, Write_Stdout_Policy> p;
-    while(p.process_one()){
-	const string& id = static_cast<Read_Stdin_Policy<Block_Policy_MessageBlock>&>(p).get_id();
-	count_map[id]++;
-	if(time(NULL) - last_ts >= interval){
-	    print_and_reset();
-	    last_ts = time(NULL);
+class CountProcessor : public Processor<Block_Policy_MessageBlock, Block_Policy_MessageBlock, Read_Stdin_Policy, Write_Stdout_Policy>
+{
+public:
+    void run(){
+	time_t last_ts = time(NULL);
+	for(;;){
+	    message_payload payload = Read();
+	    if(payload.len <= 0){
+		break;
+	    }
+	    const string& id = static_cast<Read_Stdin_Policy<Block_Policy_MessageBlock>*>(this)->get_id();
+	    static_cast<Write_Stdout_Policy<Block_Policy_MessageBlock>*>(this)->set_id(id);
+	    if(!Write(payload.buf, payload.len)){
+		break;
+	    }
+	    count_map[id]++;
+	    if(time(NULL) - last_ts >= interval){
+		print_and_reset();
+		last_ts = time(NULL);
+	    }
 	}
+	print_and_reset();
     }
-    print_and_reset();
-}
+};
 
 void usage() {
 	cerr << "Allowed options:" << endl
@@ -85,6 +96,7 @@ int main(int argc, char* argv[]) {
 			return MIST_ARGUMENT_ERROR;
 		}
 	}
-	count_loop();
+	CountProcessor p;
+	p.run();
 	return 0;
 }
