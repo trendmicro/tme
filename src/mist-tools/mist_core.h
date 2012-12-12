@@ -149,7 +149,7 @@ class Block_Base{
 template < class block_policy >
 class Read_Stdin_Policy : public block_policy
 {
-	protected:
+	public:
 		message_payload Read(){
 			return block_policy::Read(0);
 		}
@@ -168,7 +168,7 @@ class Socket_Policy_Base{
 template < class block_policy >
 class Read_Socket_Policy : public block_policy, public Socket_Policy_Base
 {
-	protected:
+	public:
 		message_payload Read(){
 			return block_policy::Read(_sock);
 		}
@@ -177,7 +177,7 @@ class Read_Socket_Policy : public block_policy, public Socket_Policy_Base
 template < class block_policy >
 class Write_Socket_Policy : public block_policy, public Socket_Policy_Base
 {
-	protected:
+	public:
 		bool Write(const char* buf, const size_t count){
 			return block_policy::Write(_sock, buf, count);
 		}
@@ -186,7 +186,7 @@ class Write_Socket_Policy : public block_policy, public Socket_Policy_Base
 template < class block_policy >
 class Write_Stdout_Policy : public block_policy
 {
-	protected:
+	public:
 		bool Write(const char* buf, const size_t count){
 			return block_policy::Write(1, buf, count);
 		}
@@ -197,7 +197,6 @@ class Block_Policy_Line : public Block_Base
 	public:
 		Block_Policy_Line():_linebuf_ptr(_linebuf), _linebuf_end(_linebuf){}
 
-	protected:
 		message_payload Read(const int fd){
 			char* ptr = _buf;
 			size_t size = 0;
@@ -236,7 +235,7 @@ class Block_Policy_Line : public Block_Base
 
 class Block_Policy_Length : public Block_Base
 {
-	protected:
+	public:
 		message_payload Read(const int fd){
 			uint32_t len = 0;
 			if(read_all(fd, _buf, 4) == 4){
@@ -254,7 +253,7 @@ class Block_Policy_Length : public Block_Base
 
 class Block_Policy_Skip : public Block_Policy_Length
 {
-	protected:
+	public:
 		message_payload Read(const int fd){
 			Block_Policy_Length::Read(fd);
 			return message_payload(_buf, 0);
@@ -278,7 +277,6 @@ class Block_Policy_MessageBlock : public Block_Policy_Length
 			_ttl = ttl;
 		}
 		
-	protected:
 		message_payload Read(const int fd){
 			message_payload raw = Block_Policy_Length::Read(fd);
 			if(raw.len == 0){

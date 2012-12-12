@@ -29,13 +29,13 @@ public:
     void run(){
 	time_t last_ts = time(NULL);
 	for(;;){
-	    message_payload payload = Read();
+	    message_payload payload = static_cast<Read_Stdin_Policy<Block_Policy_MessageBlock>*>(this)->Read();
 	    if(payload.len <= 0){
 		break;
 	    }
 	    const string& id = static_cast<Read_Stdin_Policy<Block_Policy_MessageBlock>*>(this)->get_id();
 	    static_cast<Write_Stdout_Policy<Block_Policy_MessageBlock>*>(this)->set_id(id);
-	    if(!Write(payload.buf, payload.len)){
+	    if(!static_cast<Write_Stdout_Policy<Block_Policy_MessageBlock>*>(this)->Write(payload.buf, payload.len)){
 		break;
 	    }
 	    count_map[id]++;
