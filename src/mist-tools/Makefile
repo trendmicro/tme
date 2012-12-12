@@ -37,8 +37,7 @@ DATE_TAG        = $(shell date -u "+%Y%m%dZ")
 export ARCH=$(shell uname -m)
 ifeq ($(ARCH), x86_64)
 	DEB_ARCH = amd64
-endif
-ifeq ($(ARCH), i686)
+else ifeq ($(ARCH), i686)
 	DEB_ARCH = i386
 else
 	DEB_ARCH = $(ARCH)
