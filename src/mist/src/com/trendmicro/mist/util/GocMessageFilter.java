@@ -53,7 +53,12 @@ public class GocMessageFilter implements MessageFilter {
             conn.setDoInput(true);
             conn.setDoOutput(true);
             conn.setRequestMethod("POST");
-            conn.setRequestProperty("x-trend-goc-expire", String.valueOf((System.currentTimeMillis() + msg.ttl) / 1000));
+            long ttl = msg.ttl;
+            if(ttl == 0){
+                // default to 1 hr if not set
+                ttl = 3600000;
+            }
+            conn.setRequestProperty("x-trend-goc-expire", String.valueOf((System.currentTimeMillis() + ttl) / 1000));
             conn.connect();
             conn.getOutputStream().write(msg.msg);
             
