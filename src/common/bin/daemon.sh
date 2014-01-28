@@ -50,8 +50,16 @@ then
     if [ "$DISTRIB_ID" == "Ubuntu" ]
     then
         start() {
+            kill -0 `cat $pidfile` &> /dev/null
+            if [ $? == 0 ]
+            then
+                echo "$progname (`cat $pidfile`) is running, stop it first"
+                echo "FAILED"
+                exit 1
+            fi
+
             start-stop-daemon -v -c $user -p $pidfile -S --exec $progpath daemon
-            kill -0 `cat $pidfile`
+            kill -0 `cat $pidfile` &> /dev/null
             RETVAL=$?
             if [ $RETVAL == 0 ]
             then
@@ -73,7 +81,14 @@ then
         }
 
         status() {
+            kill -0 `cat $pidfile` &> /dev/null
             RETVAL=$?
+            if [ $RETVAL == 0 ]
+            then
+                echo "$progname (`cat $pidfile`) is running"
+            else
+                echo "$progname is not running"
+            fi
         }
 
         reload_monit() {
