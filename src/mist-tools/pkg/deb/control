@@ -3,7 +3,7 @@ Version: 2.5
 Section: base
 Priority: optional
 Architecture: any
-Depends: 
+Depends: libc6
 Maintainer: https://github.com/trendmicro/tme
 Description: The tools to send / receive messages
 
