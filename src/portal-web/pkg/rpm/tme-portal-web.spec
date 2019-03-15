@@ -18,7 +18,7 @@ License: Trend Micro Inc.
 Group: System Environment/Daemons
 Source: tme-portal-web-%{version}.tar.gz
 BuildRoot: %{_tmppath}/%{name}-%{version}-root
-Requires: ruby >= 1.9.2, ruby-bundler, rrdtool, nodejs, tme-common >= 2.5-20120802Z, monit
+Requires: ruby >= 1.9.3, ruby-bundler, rrdtool, nodejs, tme-common >= 2.5-20120802Z, monit
 Requires(post): /sbin/chkconfig, /sbin/service
 Requires(preun): /sbin/chkconfig, /sbin/service
 
