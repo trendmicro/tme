@@ -3,7 +3,7 @@
 
 ### Prerequisites
 
-+ Ruby 1.9.2 
++ Ruby 1.9.3 
 + Rubygems 1.8
 + Bundler 1.0.10 and gems listed in Gemfile
 

@@ -1,4 +1,4 @@
-source :rubygems
+source 'https://rubygems.org'
 
 gem 'sinatra'
 gem 'sinatra-contrib', :require => "sinatra/contrib"
@@ -13,4 +13,6 @@ gem 'i18n'
 gem 'json'
 gem 'builder'
 gem 'coffee-script'
+
+gem 'activesupport', "~> 4.1.11"
 
