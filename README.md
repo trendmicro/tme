@@ -22,16 +22,13 @@ Simply run `make rpm` in the top directory, and all the RPM packages of TME will
 Ubuntu
 ------
 
-Tested on Ubuntu 10.04 LTS, using OpenJDK should work.
+Tested on Ubuntu 16.04 LTS (Xenial), using OpenJDK should work.
 
-To prepare the build environment:
+To prepare the build environment, please install the following prerequisites system-wide:
 
-1. `apt-get install git-core`
-2. `apt-get install openjdk-6-jdk`
-3. `apt-get install ant1.8`
-4. `apt-get install g++`
-5. `apt-get install cmake`
-6. `apt-get install rpm`
+```console
+$ sudo apt-get install git-core default-jdk ant g++ cmake rpm
+```
 
 TME web portal only supports Ruby 1.9.2+, and Ubuntu 10.04 only ships Ruby 1.9.1
 
