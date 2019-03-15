@@ -24,6 +24,7 @@
 #include <iostream>
 #include <arpa/inet.h>
 #include <errno.h>
+#include <unistd.h>
 
 int read_all(int blocking_fd, char* buf, size_t size) {
     size_t size_read = 0;
